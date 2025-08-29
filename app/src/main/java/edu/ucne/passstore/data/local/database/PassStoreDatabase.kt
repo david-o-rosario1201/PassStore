@@ -1,6 +1,7 @@
 package edu.ucne.passstore.data.local.database
 
 import androidx.room.Database
+import androidx.room.RoomDatabase
 import edu.ucne.passstore.data.local.dao.CodigoSeguridadDao
 import edu.ucne.passstore.data.local.dao.CuentaDao
 import edu.ucne.passstore.data.local.dao.SubcuentaDao
@@ -20,7 +21,7 @@ import edu.ucne.passstore.data.local.entities.UsuarioEntity
     version = 1,
     exportSchema = false
 )
-abstract class PassStoreDatabase {
+abstract class PassStoreDatabase: RoomDatabase() {
     abstract fun usuarioDao(): UsuarioDao
     abstract fun codigoSeguridadDao(): CodigoSeguridadDao
     abstract fun cuentaDao(): CuentaDao
