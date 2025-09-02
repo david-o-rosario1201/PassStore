@@ -5,6 +5,7 @@ package edu.ucne.passstore.presentation.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import edu.ucne.passstore.R
+import java.util.Locale
 
 data class BottomNavigationItem(
     val title: String,
@@ -87,6 +92,7 @@ fun HomeBodyScreen() {
     var selectedItemIndex by rememberSaveable {
         mutableStateOf(0)
     }
+    var currentLocal by remember { mutableStateOf(Locale.getDefault().language) }
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
@@ -95,8 +101,9 @@ fun HomeBodyScreen() {
             CenterAlignedTopAppBar(
                 title = {
                     Column {
+                        val userName = "Juan Pérez" // esto puede venir de ViewModel o estado
                         Text(
-                            text = "!Hola, Juan Pérez! \uD83D\uDC4B",
+                            text = localizedString(R.string.hello_user, currentLocal, userName),
                             style = TextStyle(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -105,7 +112,7 @@ fun HomeBodyScreen() {
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = "Guarda todo lo que no quieras olvidar.",
+                            text = localizedString(R.string.subtitle, currentLocal),
                             style = TextStyle(
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Normal,
@@ -186,12 +193,12 @@ fun HomeBodyScreen() {
         ){
             Image(
                 painter = painterResource(R.drawable.cajavacia),
-                contentDescription = "No hay cuentas creadas",
+                contentDescription = localizedString(R.string.empty_box_description, currentLocal),
                 modifier = Modifier.size(100.dp)
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Todavía no has ingresado ningúna cuenta. Presione el botón de + para comenzar",
+                text = localizedString(R.string.empty_box_text, currentLocal),
                 style = TextStyle(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
@@ -200,8 +207,25 @@ fun HomeBodyScreen() {
                 ),
                 modifier = Modifier.width(300.dp)
             )
+            Row {
+                Button(onClick = { currentLocal = "es" }) {
+                    Text("ES")
+                }
+                Button(onClick = { currentLocal = "en" }) {
+                    Text("EN")
+                }
+            }
         }
     }
+}
+
+@Composable
+fun localizedString(@androidx.annotation.StringRes resId: Int, locale: String, vararg args: Any): String {
+    val context = LocalContext.current
+    val configuration = context.resources.configuration
+    configuration.setLocale(Locale(locale))
+    val localizedContext = context.createConfigurationContext(configuration)
+    return localizedContext.resources.getString(resId, *args)
 }
 
 @Preview(showBackground = true, showSystemUi = true)
