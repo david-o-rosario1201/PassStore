@@ -2,21 +2,34 @@
 
 package edu.ucne.passstore.presentation.home
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Nightlight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
@@ -25,12 +38,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +65,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import edu.ucne.passstore.R
@@ -94,126 +111,237 @@ fun HomeBodyScreen() {
     }
     var currentLocal by remember { mutableStateOf(Locale.getDefault().language) }
 
-    Scaffold(
-        modifier = Modifier.fillMaxWidth(),
-        containerColor = Color.White,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Column {
-                        val userName = "Juan Pérez" // esto puede venir de ViewModel o estado
-                        Text(
-                            text = localizedString(R.string.hello_user, currentLocal, userName),
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = localizedString(R.string.subtitle, currentLocal),
-                            style = TextStyle(
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.White
-                            )
-                        )
-                    }
-                },
-                colors = androidx.compose.material3
-                    .TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color(0xFF0D47A1)
-                ),
-                modifier = Modifier.shadow(
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(
-                        bottomStart = 30.dp, bottomEnd = 30.dp
-                    )
-                )
-            )
-        },
-        bottomBar = {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shadowElevation = 8.dp,
-                color = Color.Gray,
-                shape = RoundedCornerShape(
-                    topStart = 30.dp, topEnd = 30.dp
-                )
-            ) {
-                NavigationBar(
-                    containerColor = Color.White,
-                    tonalElevation = 0.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                ){
-                    items.forEachIndexed { index, item ->
-                        val isSelected = selectedItemIndex == index
-                        NavigationBarItem(
-                            selected = isSelected,
-                            onClick = {
-                                selectedItemIndex = index
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
-                                    contentDescription = item.title,
-                                    tint = if (isSelected) Color.White else Color.Black
-                                )
-                            },
-                            label = {
-                                Text(
-                                    text = item.label,
-                                    color = Color.Black,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                )
+    var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color.White,
-                                unselectedIconColor = Color.Black,
-                                selectedTextColor = Color.Black,
-                                unselectedTextColor = Color.Black,
-                                indicatorColor = Color(0xFF0D47A1)
+    val LightColors = lightColorScheme(
+        primary = Color(0xFF0D47A1),
+        onPrimary = Color.White,
+        background = Color.White,
+        onBackground = Color.Black,
+        surface = Color.White,
+        onSurface = Color.Black,
+    )
+
+    val DarkColors = darkColorScheme(
+        primary = Color(0xFF90CAF9),
+        onPrimary = Color.Black,
+        background = Color.Black,
+        onBackground = Color.White,
+        surface = Color(0xFF121212),
+        onSurface = Color.White,
+    )
+
+    val colors = if (isDarkMode) DarkColors else LightColors
+
+    MaterialTheme(
+        colorScheme = colors
+    ){
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Scaffold(
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.background,
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Column {
+                                val userName = "Juan Pérez" // esto puede venir de ViewModel o estado
+                                Text(
+                                    text = localizedString(R.string.hello_user, currentLocal, userName),
+                                    style = TextStyle(
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(
+                                    text = localizedString(R.string.subtitle, currentLocal),
+                                    style = TextStyle(
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
+                                    )
+                                )
+                            }
+                        },
+                        colors = androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primary, // cambia con tema
+                            titleContentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier.shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(
+                                bottomStart = 30.dp, bottomEnd = 30.dp
                             )
                         )
+                    )
+                },
+                bottomBar = {
+                    val barColor = MaterialTheme.colorScheme.surface
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = barColor,
+                        shadowElevation = 8.dp,
+                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                    ) {
+                        NavigationBar(
+                            containerColor = barColor,
+                            tonalElevation = 0.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                        ) {
+                            items.forEachIndexed { index, item ->
+                                val isSelected = selectedItemIndex == index
+                                NavigationBarItem(
+                                    selected = isSelected,
+                                    onClick = { selectedItemIndex = index },
+                                    icon = {
+                                        Icon(
+                                            imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
+                                            contentDescription = item.title,
+                                            tint = if (isSelected)
+                                                MaterialTheme.colorScheme.onPrimary
+                                            else
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = item.label,
+                                            color = if (isSelected)
+                                                MaterialTheme.colorScheme.onSurface
+                                            else
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                        indicatorColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    alwaysShowLabel = true
+                                )
+                            }
+                        }
                     }
+                }
+
+            ){ innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ){
+                    Image(
+                        painter = painterResource(R.drawable.cajavacia),
+                        contentDescription = localizedString(R.string.empty_box_description, currentLocal),
+                        modifier = Modifier.size(100.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = localizedString(R.string.empty_box_text, currentLocal),
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center,
+                        ),
+                        modifier = Modifier.width(300.dp)
+                    )
+                    Row {
+                        Button(onClick = { currentLocal = "es" }) {
+                            Text("ES")
+                        }
+                        Button(onClick = { currentLocal = "en" }) {
+                            Text("EN")
+                        }
+                    }
+
+                    ThemeSwitcher(
+                        isDarkMode = isDarkMode,
+                        onClick = { isDarkMode = !isDarkMode }
+                    )
                 }
             }
         }
-    ){ innerPadding ->
-        Column(
+    }
+}
+
+@Composable
+fun ThemeSwitcher(
+    isDarkMode: Boolean,
+    size: Dp = 40.dp,
+    iconSize: Dp = size / 3,
+    padding: Dp = 10.dp,
+    borderWidth: Dp = 1.dp,
+    parentShape: CornerBasedShape = CircleShape,
+    toggleShape: CornerBasedShape = CircleShape,
+    animationSpec: AnimationSpec<Dp> = tween(durationMillis = 300),
+    onClick: () -> Unit
+){
+    val offset by animateDpAsState(
+        targetValue = if(isDarkMode) 0.dp else size,
+        animationSpec = animationSpec
+    )
+
+    Box(
+        modifier = Modifier
+            .width(size * 2)
+            .height(size)
+            .clip(shape = parentShape)
+            .clickable { onClick() }
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+    ){
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .size(size)
+                .offset(x = offset)
+                .padding(all = padding)
+                .clip(shape = toggleShape)
+                .background(MaterialTheme.colorScheme.primary)
+        ){}
+        Row (
+            modifier = Modifier
+                .border(
+                    border = BorderStroke(
+                        width = borderWidth,
+                        color = MaterialTheme.colorScheme.primary,
+                    ),
+                    shape = parentShape
+                )
         ){
-            Image(
-                painter = painterResource(R.drawable.cajavacia),
-                contentDescription = localizedString(R.string.empty_box_description, currentLocal),
-                modifier = Modifier.size(100.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = localizedString(R.string.empty_box_text, currentLocal),
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color(0xFFB1ADAD),
-                    textAlign = TextAlign.Center,
-                ),
-                modifier = Modifier.width(300.dp)
-            )
-            Row {
-                Button(onClick = { currentLocal = "es" }) {
-                    Text("ES")
-                }
-                Button(onClick = { currentLocal = "en" }) {
-                    Text("EN")
-                }
+            Box(
+                modifier = Modifier.size(size),
+                contentAlignment = Alignment.Center
+            ){
+                Icon(
+                    modifier = Modifier.size(iconSize),
+                    imageVector = Icons.Default.Nightlight,
+                    contentDescription = "Theme Icon",
+                    tint = if(isDarkMode) MaterialTheme.colorScheme.secondaryContainer
+                        else MaterialTheme.colorScheme.primary
+                )
+            }
+            Box(
+                modifier = Modifier.size(size),
+                contentAlignment = Alignment.Center
+            ){
+                Icon(
+                    modifier = Modifier.size(iconSize),
+                    imageVector = Icons.Default.LightMode,
+                    contentDescription = "Theme Icon",
+                    tint = if(isDarkMode) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.secondaryContainer
+                )
             }
         }
     }
