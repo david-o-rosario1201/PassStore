@@ -68,6 +68,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import edu.ucne.passstore.R
 import java.util.Locale
 
@@ -84,7 +85,7 @@ fun HomeScreen(){
 }
 
 @Composable
-fun HomeBodyScreen() {
+fun HomeBodyScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val items = listOf(
         BottomNavigationItem(
             title = "Home",
