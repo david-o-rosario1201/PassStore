@@ -1,6 +1,8 @@
 package edu.ucne.passstore.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import edu.ucne.passstore.data.local.entities.CuentaEntity
@@ -10,6 +12,9 @@ import kotlinx.coroutines.flow.Flow
 interface CuentaDao {
     @Upsert
     suspend fun addCuenta(cuenta: CuentaEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addCuentas(cuentas: List<CuentaEntity>)
 
     @Query("""
         SELECT * FROM Cuentas
