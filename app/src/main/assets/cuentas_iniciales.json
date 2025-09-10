@@ -1,0 +1,10 @@
+[
+  {
+    "nombre": "Google",
+    "iconoResId": "google_logo"
+  },
+  {
+    "nombre": "Facebook",
+    "iconoResId": "facebook_logo"
+  }
+]

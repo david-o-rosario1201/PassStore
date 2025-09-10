@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PassStore</string>
+    <string name="hello_user">¡Hola, %1$s 👋!</string>
+    <string name="subtitle">Guarda todo lo que no quieras olvidar.</string>
+    <string name="empty_box_description">No hay cuentas creadas</string>
+    <string name="empty_box_text">Todavía no has ingresado ningúna cuenta. Presione el botón de + para comenzar</string>
 </resources>
