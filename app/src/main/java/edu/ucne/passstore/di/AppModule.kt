@@ -40,7 +40,6 @@ object AppModule {
                         try {
                             // Cargar cuentas desde JSON
                             val cuentasIniciales = loadCuentaDesdeJson(appContext)
-                                .filter { it.iconoResId != 0 } // Filtrar drawables inexistentes
 
                             // Insertar en la BD
                             database.cuentaDao().addCuentas(cuentasIniciales)
