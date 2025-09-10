@@ -8,5 +8,5 @@ data class CuentaEntity(
     @PrimaryKey
     val cuentaId: Int? = null,
     val nombre: String,
-    val iconoResId: Int
+    val iconoResName: String
 )
