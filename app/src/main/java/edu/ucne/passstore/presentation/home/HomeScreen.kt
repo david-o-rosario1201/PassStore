@@ -29,15 +29,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Nightlight
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,9 +39,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -65,7 +56,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -77,54 +67,30 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import edu.ucne.passstore.R
 import edu.ucne.passstore.data.local.entities.CuentaEntity
-import edu.ucne.passstore.data.local.entities.SubcuentaEntity
+import edu.ucne.passstore.presentation.navigation.BottomNavigationBar
 import java.util.Locale
 
-data class BottomNavigationItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val label: String
-)
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()){
+fun HomeScreen(
+    navHostController: NavHostController,
+    viewModel: HomeViewModel = hiltViewModel()
+){
     val uiState by  viewModel.uiState.collectAsState()
     HomeBodyScreen(
-        uiState = uiState
+        uiState = uiState,
+        navHostController = navHostController
     )
 }
 
 @Composable
 fun HomeBodyScreen(
-    uiState: HomeUiState
+    uiState: HomeUiState,
+    navHostController: NavHostController
 ) {
-    val items = listOf(
-        BottomNavigationItem(
-            title = "Home",
-            selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home,
-            label = "Home"
-        ),
-        BottomNavigationItem(
-            title = "Nueva cuenta",
-            selectedIcon = Icons.Filled.Add,
-            unselectedIcon = Icons.Outlined.Add,
-            label = "Nueva cuenta"
-        ),
-        BottomNavigationItem(
-            title = "Settings",
-            selectedIcon = Icons.Filled.Settings,
-            unselectedIcon = Icons.Outlined.Settings,
-            label = "Settings"
-        )
-    )
-
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
     var currentLocal by remember { mutableStateOf(Locale.getDefault().language) }
 
     var isDarkMode by rememberSaveable { mutableStateOf(false) }
@@ -203,59 +169,17 @@ fun HomeBodyScreen(
                         shadowElevation = 8.dp,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     ) {
-                        NavigationBar(
-                            containerColor = barColor,
-                            tonalElevation = 0.dp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                        ) {
-                            items.forEachIndexed { index, item ->
-                                val isSelected = selectedItemIndex == index
-                                NavigationBarItem(
-                                    selected = isSelected,
-                                    onClick = { selectedItemIndex = index },
-                                    icon = {
-                                        Icon(
-                                            imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
-                                            contentDescription = item.title,
-                                            tint = if (isSelected)
-                                                MaterialTheme.colorScheme.onPrimary
-                                            else
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                                        )
-                                    },
-                                    label = {
-                                        Text(
-                                            text = item.label,
-                                            color = if (isSelected)
-                                                MaterialTheme.colorScheme.onSurface
-                                            else
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                        )
-                                    },
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                        indicatorColor = MaterialTheme.colorScheme.primary
-                                    ),
-                                    alwaysShowLabel = true
-                                )
-                            }
-                        }
+                        BottomNavigationBar(
+                            navHostController = navHostController
+                        )
                     }
                 }
-
             ){ innerPadding ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    //verticalArrangement = Arrangement.Center
                 ){
                     if(uiState.subcuentas.isEmpty()){
                         Column(
@@ -287,9 +211,14 @@ fun HomeBodyScreen(
                                 .fillMaxSize()
                                 .padding(top = 24.dp)
                         ){
-                            items(uiState.subcuentas){
+                            items(
+                                uiState.cuentas.filter { cuenta ->
+                                    uiState.subcuentas.any { subcuenta ->
+                                        subcuenta.cuentaId == cuenta.cuentaId
+                                    }
+                                }){ cuenta ->
                                 SubcuentaRow(
-                                    it = it,
+                                    it = cuenta,
                                     cuentas = uiState.cuentas,
                                     onClick = {}
                                 )
@@ -317,7 +246,7 @@ fun HomeBodyScreen(
 
 @Composable
 fun SubcuentaRow(
-    it: SubcuentaEntity,
+    it: CuentaEntity,
     cuentas: List<CuentaEntity>,
     onClick: (Int) -> Unit
 ){
@@ -327,7 +256,7 @@ fun SubcuentaRow(
     }
     val resIdItem = context.resources.getIdentifier(cuenta?.iconoResName, "drawable", context.packageName)
     Card(
-        onClick = { onClick(it.cuentaId) },
+        onClick = {  },
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -457,6 +386,7 @@ fun localizedString(@androidx.annotation.StringRes resId: Int, locale: String, v
 @Composable
 fun HomeBodyScreenPreview(){
     HomeBodyScreen(
-        uiState = HomeUiState()
+        uiState = HomeUiState(),
+        navHostController = NavHostController(LocalContext.current)
     )
 }
