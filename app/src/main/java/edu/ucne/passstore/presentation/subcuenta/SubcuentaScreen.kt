@@ -1,8 +1,16 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
 
 package edu.ucne.passstore.presentation.subcuenta
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,21 +20,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +51,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -56,23 +63,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
-import edu.ucne.passstore.R
 import edu.ucne.passstore.presentation.components.CustomDropDownMenu
 import edu.ucne.passstore.presentation.components.PasswordVisibilityToggle
-import java.util.Locale
+import kotlinx.coroutines.delay
 
 @Composable
 fun SubcuentaScreen(
+    goHome: () -> Unit,
     viewModel: SubcuentaViewModel = hiltViewModel()
 ){
     val uiSate by viewModel.uiState.collectAsState()
     SubcuentaBodyScreen(
         uiState = uiSate,
         onEvent = viewModel::onEvent,
-        goHome = {}
+        goHome = goHome
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubcuentaBodyScreen(
     uiState: SubcuentaUiState,
@@ -104,6 +112,14 @@ fun SubcuentaBodyScreen(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     var passwordVisible by remember { mutableStateOf(false) }
+    val showBanner = uiState.errorMessage.isNotEmpty()
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        if(uiState.errorMessage.isEmpty() && uiState.success){
+            goHome()
+        }
+    }
 
     MaterialTheme(
         colorScheme = colors
@@ -146,6 +162,18 @@ fun SubcuentaBodyScreen(
                         .padding(innerPadding),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
+
+                    if (showBanner) {
+                        MessageBanner(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp),
+                            visible = true,
+                            label = uiState.errorMessage,
+                            onDismiss = { onEvent(SubcuentaUiEvent.ErrorDismiss) }
+                        )
+                    }
+
                     OutlinedTextField(
                         label = {Text("Usuario")},
                         value = uiState.nombreUsuario,
@@ -235,28 +263,126 @@ fun SubcuentaBodyScreen(
                     )
 
                     Spacer(modifier = Modifier.height(40.dp))
-                    Button(
-                        onClick = {
-                            onEvent(SubcuentaUiEvent.Save)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        modifier = Modifier
-                            .width(150.dp)
-                    ) {
-                        Text(
-                            text = "Crear",
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold
+                    Row {
+                        Button(
+                            onClick = {
+                                if(uiState.nombreUsuario.isNotEmpty()
+                                    || uiState.password.isNotEmpty() || uiState.cuentaId != 0){
+                                    showDialog = true
+                                } else {
+                                    goHome()
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            modifier = Modifier.width(150.dp)
+                        ) {
+                            Text(
+                                text = "Cancelar",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
-                        )
+                        }
+
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        Button(
+                            onClick = {
+                                onEvent(SubcuentaUiEvent.Save)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            modifier = Modifier.width(150.dp)
+                        ) {
+                            Text(
+                                text = "Crear",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
                     }
+
+                    ConfirmationDialog(
+                        showDialog = showDialog,
+                        title = "Datos sin guardar",
+                        message = "¿Estás seguro de que deseas eliminar esta cuenta?",
+                        onConfirm = { goHome() },
+                        onDismiss = { showDialog = false }
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MessageBanner(
+    modifier: Modifier = Modifier,
+    visible: Boolean,
+    label: String,
+    onDismiss: () -> Unit,
+    durationMillis: Long = 1000L,
+    backgroundColor: Color = Color.Red,
+    contentColor: Color = Color.White
+){
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = visible,
+        enter = slideInVertically(
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+        )
+    ) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(backgroundColor)
+                .padding(0.dp),
+            text = label,
+            textAlign = TextAlign.Center,
+            color = contentColor
+        )
+    }
+
+    LaunchedEffect(visible){
+        if(visible){
+            delay(durationMillis)
+            onDismiss()
+        }
+    }
+}
+
+@Composable
+fun ConfirmationDialog(
+    showDialog: Boolean,
+    title: String,
+    message: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+){
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text(text = title, fontWeight = FontWeight.Bold) },
+            text = { Text(text = message) },
+            confirmButton = {
+                Button(onClick = { onConfirm() }) {
+                    Text("Aceptar")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { onDismiss() }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
