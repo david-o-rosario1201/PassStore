@@ -59,10 +59,30 @@ class SubcuentaViewModel @Inject constructor(
             }
             SubcuentaUiEvent.Save -> {
                 viewModelScope.launch {
-                    subcuentaRepository.addSubcuenta(_uiState.value.toSubcuentaEntity())
+                    if(_uiState.value.nombreUsuario.isEmpty()
+                        || _uiState.value.password.isEmpty()
+                        || _uiState.value.cuentaId == 0){
+
+                        _uiState.update {
+                            it.copy(errorMessage = "Por favor complete todos los campos")
+                        }
+                    } else{
+                        _uiState.update {
+                            it.copy(
+                                errorMessage = "",
+                                success = true
+                            )
+                        }
+                        subcuentaRepository.addSubcuenta(_uiState.value.toSubcuentaEntity())
+                    }
                 }
             }
             SubcuentaUiEvent.Delete -> TODO()
+            SubcuentaUiEvent.ErrorDismiss -> {
+                _uiState.update {
+                    it.copy(errorMessage = "")
+                }
+            }
         }
     }
 }
