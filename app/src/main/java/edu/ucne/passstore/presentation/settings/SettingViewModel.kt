@@ -17,10 +17,6 @@ class SettingViewModel @Inject constructor(
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode
 
-    init {
-        themeApp()
-    }
-
     private fun themeApp(){
         viewModelScope.launch {
             themePreferences.isDarkModeFlow.collectLatest { darkMode ->
