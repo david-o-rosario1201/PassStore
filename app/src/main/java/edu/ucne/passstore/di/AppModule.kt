@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import edu.ucne.passstore.data.local.database.PassStoreDatabase
+import edu.ucne.passstore.presentation.preferences.ThemePreferences
 import edu.ucne.passstore.utils.loadCuentaDesdeJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,11 @@ object AppModule {
         return database
     }
 
+    @Provides
+    @Singleton
+    fun providesThemePreferences(@ApplicationContext context: Context): ThemePreferences {
+        return ThemePreferences(context)
+    }
 
     @Provides
     @Singleton

@@ -18,34 +18,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,79 +41,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import edu.ucne.passstore.R
-import java.util.Locale
-
-data class BottomNavigationItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val label: String
-)
+import edu.ucne.passstore.presentation.components.AppTheme
+import edu.ucne.passstore.presentation.navigation.BottomNavigationBar
 
 @Composable
-fun SettingScreen(){
+fun SettingScreen(
+    navHostController: NavHostController,
+    viewModel: SettingViewModel = hiltViewModel()
+){
     var switchState by remember { mutableStateOf(false) }
+//    val isDarkMode by viewModel.isDarkMode.collectAsState()
 
-
-    val items = listOf(
-        BottomNavigationItem(
-            title = "Home",
-            selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home,
-            label = "Home"
-        ),
-        BottomNavigationItem(
-            title = "Nueva cuenta",
-            selectedIcon = Icons.Filled.Add,
-            unselectedIcon = Icons.Outlined.Add,
-            label = "Nueva cuenta"
-        ),
-        BottomNavigationItem(
-            title = "Settings",
-            selectedIcon = Icons.Filled.Settings,
-            unselectedIcon = Icons.Outlined.Settings,
-            label = "Settings"
-        )
-    )
-
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
-    var currentLocal by remember { mutableStateOf(Locale.getDefault().language) }
-
-    var isDarkMode by rememberSaveable { mutableStateOf(false) }
-
-    val LightColors = lightColorScheme(
-        primary = Color(0xFF0D47A1),
-        onPrimary = Color.White,
-        background = Color.White,
-        onBackground = Color.Black,
-        surface = Color.White,
-        onSurface = Color.Black,
-    )
-
-    val DarkColors = darkColorScheme(
-        primary = Color(0xFF90CAF9),
-        onPrimary = Color.Black,
-        background = Color.Black,
-        onBackground = Color.White,
-        surface = Color(0xFF121212),
-        onSurface = Color.White,
-    )
-
-    val colors = if (isDarkMode) DarkColors else LightColors
-
-    MaterialTheme(
-        colorScheme = colors
-    ){
+    AppTheme{
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.background
@@ -140,49 +76,7 @@ fun SettingScreen(){
                         shadowElevation = 8.dp,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     ) {
-                        NavigationBar(
-                            containerColor = barColor,
-                            tonalElevation = 0.dp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                        ){
-                            items.forEachIndexed { index, item ->
-                                val isSelected = selectedItemIndex == index
-                                NavigationBarItem(
-                                    selected = isSelected,
-                                    onClick = { selectedItemIndex = index },
-                                    icon = {
-                                        Icon(
-                                            imageVector = if(isSelected) item.selectedIcon else item.unselectedIcon,
-                                            contentDescription = item.title,
-                                            tint = if(isSelected)
-                                                MaterialTheme.colorScheme.onPrimary
-                                            else
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                                        )
-                                    },
-                                    label = {
-                                        Text(
-                                            text = item.label,
-                                            color = if(isSelected)
-                                                MaterialTheme.colorScheme.onSurface
-                                            else
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                            fontWeight = if(isSelected) FontWeight.Bold else FontWeight.Normal
-                                        )
-                                    },
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                        indicatorColor = MaterialTheme.colorScheme.primary
-                                    ),
-                                    alwaysShowLabel = true
-                                )
-                            }
-                        }
+                        BottomNavigationBar(navHostController = navHostController)
                     }
                 }
             ){ innerPadding ->
@@ -200,7 +94,7 @@ fun SettingScreen(){
                         style = TextStyle(
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     )
 
@@ -305,10 +199,8 @@ fun SettingScreen(){
                     SettingsCard {
                         SettingSwitchRow(
                             title = "Tema claro/oscuro",
-                            leftLabel = "Oscuro",
-                            rightLabel = "Claro",
-                            checked = switchState,
-                            onCheckedChange = { switchState = it }
+                            checked = true,
+                            onCheckedChange = { viewModel.toggleDarkMode() }
                         )
                         SettingSwitchRow(
                             title = "Idioma",
@@ -345,7 +237,7 @@ fun SectionTitle(title: String){
         style = TextStyle(
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.onBackground
         ),
         modifier = Modifier.padding(vertical = 8.dp)
     )
@@ -398,7 +290,7 @@ fun SettingRow(
             text = title,
             style = TextStyle(
                 fontSize = 13.sp,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onBackground
             )
         )
         Row(verticalAlignment = Alignment.CenterVertically){
@@ -444,18 +336,30 @@ fun SettingSwitchRow(
             text = title,
             style = TextStyle(
                 fontSize = 13.sp,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onBackground
             )
         )
         Row(verticalAlignment = Alignment.CenterVertically){
             leftLabel?.let { Text(it, fontSize = 12.sp, color = Color.Gray) }
 
-            if(title == "Seguridad"){
-                CustomSwitchWithLabel(
-                    checked = checked,
-                    onCheckedChange = onCheckedChange,
-                    label = ""
-                )
+//            if(title == "Seguridad"){
+//                CustomSwitchWithLabel(
+//                    checked = checked,
+//                    onCheckedChange = onCheckedChange,
+//                    label = ""
+//                )
+//            } else{
+//
+//            }
+
+            if(title == "Tema claro/oscuro"){
+//                ThemeSwitcher(
+//                    isDarkMode = checked,
+//                    iconSize = 15.dp,
+//                    padding = 7.dp,
+//                    borderWidth = 1.dp,
+//                    onClick = { onCheckedChange(!checked)}
+//                )
             } else{
                 CustomSwitchWithLabel(
                     checked = checked,
