@@ -1,6 +1,7 @@
 package edu.ucne.passstore.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,12 +13,16 @@ import edu.ucne.passstore.presentation.subcuenta.SubcuentaScreen
 fun PassStoreNavHost(
     navHostController: NavHostController
 ){
+    val context = LocalContext.current
     NavHost(
         navController = navHostController,
         startDestination = Screen.HomeScreen
     ) {
         composable<Screen.HomeScreen> {
-            HomeScreen(navHostController = navHostController)
+            HomeScreen(
+                context = context,
+                navHostController = navHostController
+            )
         }
         composable<Screen.SubcuentaScreen> {
             SubcuentaScreen(
@@ -25,7 +30,10 @@ fun PassStoreNavHost(
             )
         }
         composable<Screen.SettingScreen> {
-            SettingScreen(navHostController = navHostController)
+            SettingScreen(
+                context = context,
+                navHostController = navHostController
+            )
         }
     }
 }

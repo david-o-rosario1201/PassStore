@@ -1,5 +1,6 @@
 package edu.ucne.passstore.presentation.navigation
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,12 +26,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import edu.ucne.passstore.R
 
 @Composable
 fun BottomNavigationBar(
+    context: Context,
     navHostController: NavHostController
 ){
-    val items = remember { getBottomNavigationItems() }
+    val items = remember { getBottomNavigationItems(context) }
 
     //Navegación backstack
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
@@ -100,27 +103,29 @@ data class BottomNavigationItem(
     val screen: Screen
 )
 
-private fun getBottomNavigationItems(): List<BottomNavigationItem>{
+private fun getBottomNavigationItems(
+    context: Context
+): List<BottomNavigationItem>{
     return listOf(
         BottomNavigationItem(
-            title = "Home",
+            title = context.getString(R.string.bottombar_home),
             selectedIcon = Icons.Filled.Home,
             unselectedIcon = Icons.Outlined.Home,
-            label = "Home",
+            label = context.getString(R.string.bottombar_home),
             screen = Screen.HomeScreen
         ),
         BottomNavigationItem(
-            title = "Nueva cuenta",
+            title = context.getString(R.string.bottombar_new_account),
             selectedIcon = Icons.Filled.Add,
             unselectedIcon = Icons.Outlined.Add,
-            label = "Nueva cuenta",
+            label = context.getString(R.string.bottombar_new_account),
             screen = Screen.SubcuentaScreen
         ),
         BottomNavigationItem(
-            title = "Settings",
+            title = context.getString(R.string.bottombar_settings),
             selectedIcon = Icons.Filled.Settings,
             unselectedIcon = Icons.Outlined.Settings,
-            label = "Settings",
+            label = context.getString(R.string.bottombar_settings),
             screen = Screen.SettingScreen
         )
     )
