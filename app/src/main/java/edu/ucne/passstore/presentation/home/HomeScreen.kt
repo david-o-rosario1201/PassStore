@@ -2,6 +2,7 @@
 
 package edu.ucne.passstore.presentation.home
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -59,36 +60,29 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
+    context: Context,
     navHostController: NavHostController,
     viewModel: HomeViewModel = hiltViewModel()
 ){
     val uiState by  viewModel.uiState.collectAsState()
-//    val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     AppTheme{
         HomeBodyScreen(
+            context = context,
             uiState = uiState,
-            navHostController = navHostController,
-//            isDarkMode = isDarkMode,
-//            onToggleDarMode = viewModel::toggleDarkMode
+            navHostController = navHostController
         )
     }
 }
 
 @Composable
 fun HomeBodyScreen(
+    context: Context,
     uiState: HomeUiState,
-    navHostController: NavHostController,
-//    isDarkMode: Boolean,
-//    onToggleDarMode: () -> Unit
+    navHostController: NavHostController
 ) {
 
     var currentLocal by remember { mutableStateOf(Locale.getDefault().language) }
-//    var isDarkMode by rememberSaveable { mutableStateOf(false) }
-//    val systemDark = isSystemInDarkTheme()
-//
-//    if(!rememberSaveable { mutableStateOf(true).value })
-//        isDarkMode = systemDark
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -103,7 +97,7 @@ fun HomeBodyScreen(
                         Column {
                             val userName = "Juan Pérez" // esto puede venir de ViewModel o estado
                             Text(
-                                text = localizedString(R.string.hello_user, currentLocal, userName),
+                                text = context.getString(R.string.hello_user, userName),
                                 style = TextStyle(
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
@@ -112,7 +106,7 @@ fun HomeBodyScreen(
                             )
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(
-                                text = localizedString(R.string.subtitle, currentLocal),
+                                text = context.getString(R.string.subtitle),
                                 style = TextStyle(
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Normal,
@@ -142,6 +136,7 @@ fun HomeBodyScreen(
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 ) {
                     BottomNavigationBar(
+                        context = context,
                         navHostController = navHostController
                     )
                 }
@@ -162,12 +157,12 @@ fun HomeBodyScreen(
                     ){
                         Image(
                             painter = painterResource(R.drawable.cajavacia),
-                            contentDescription = localizedString(R.string.empty_box_description, currentLocal),
+                            contentDescription = context.getString(R.string.empty_box_description),
                             modifier = Modifier.size(100.dp)
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = localizedString(R.string.empty_box_text, currentLocal),
+                            text = context.getString(R.string.empty_box_text),
                             style = TextStyle(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Normal,
@@ -176,10 +171,6 @@ fun HomeBodyScreen(
                             ),
                             modifier = Modifier.width(300.dp)
                         )
-//                        ThemeSwitcher(
-//                            isDarkMode = isDarkMode,
-//                            onClick = { onToggleDarMode() }
-//                        )
                     }
                 } else{
                     LazyColumn(
@@ -272,22 +263,12 @@ fun SubcuentaRow(
     }
 }
 
-@Composable
-fun localizedString(@androidx.annotation.StringRes resId: Int, locale: String, vararg args: Any): String {
-    val context = LocalContext.current
-    val configuration = context.resources.configuration
-    configuration.setLocale(Locale(locale))
-    val localizedContext = context.createConfigurationContext(configuration)
-    return localizedContext.resources.getString(resId, *args)
-}
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeBodyScreenPreview(){
     HomeBodyScreen(
+        context = LocalContext.current,
         uiState = HomeUiState(),
-        navHostController = NavHostController(LocalContext.current),
-//        isDarkMode = false,
-//        onToggleDarMode = {}
+        navHostController = NavHostController(LocalContext.current)
     )
 }
