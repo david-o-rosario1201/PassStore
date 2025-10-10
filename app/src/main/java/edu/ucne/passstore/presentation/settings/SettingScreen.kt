@@ -1,5 +1,6 @@
 package edu.ucne.passstore.presentation.settings
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,15 +52,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import edu.ucne.passstore.R
 import edu.ucne.passstore.presentation.components.AppTheme
+import edu.ucne.passstore.presentation.components.NewSecurityDialog
+import edu.ucne.passstore.presentation.components.SecurityDialog
 import edu.ucne.passstore.presentation.navigation.BottomNavigationBar
 
 @Composable
 fun SettingScreen(
+    context: Context,
     navHostController: NavHostController,
     viewModel: SettingViewModel = hiltViewModel()
 ){
     var switchState by remember { mutableStateOf(false) }
-//    val isDarkMode by viewModel.isDarkMode.collectAsState()
+    var showSecurityDialog by remember { mutableStateOf(false) }
+    var showNewSecurityDialog by remember { mutableStateOf(false) }
 
     AppTheme{
         Surface(
@@ -76,7 +81,10 @@ fun SettingScreen(
                         shadowElevation = 8.dp,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     ) {
-                        BottomNavigationBar(navHostController = navHostController)
+                        BottomNavigationBar(
+                            context = context,
+                            navHostController = navHostController
+                        )
                     }
                 }
             ){ innerPadding ->
@@ -90,7 +98,7 @@ fun SettingScreen(
                         .verticalScroll(scrollState, enabled = true)
                 ) {
                     Text(
-                        text = "Ajustes",
+                        text = context.getString(R.string.setting_title),
                         style = TextStyle(
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold,
@@ -151,7 +159,7 @@ fun SettingScreen(
                                         )
                                     )
                                     Text(
-                                        text = "!Bienvenido de nuevo!",
+                                        text = context.getString(R.string.greetings),
                                         style = TextStyle(
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
@@ -175,55 +183,96 @@ fun SettingScreen(
                     )
 
                     // --- Sección Seguridad ---
-                    SectionTitle("Seguridad")
+                    SectionTitle(context.getString(R.string.security_section))
                     SettingsCard {
                         SettingRow(
-                            title = "Código de seguridad",
-                            value = "",
-                            onClick = { }
+                            title = context.getString(R.string.security_code),
+                            value = "******",
+                            onClick = {
+                                showSecurityDialog = true
+                            }
                         )
                         SettingSwitchRow(
-                            title = "Desbloqueo biométrico",
+                            title = context.getString(R.string.biometric_auth),
                             checked = switchState,
                             onCheckedChange = { switchState = it }
                         )
                         SettingRow(
-                            title = "Tiempo de bloqueo automático",
+                            title = context.getString(R.string.lock_screen_timer),
                             value = "10 min",
                             onClick = { }
                         )
                     }
 
                     // --- Sección Personalización ---
-                    SectionTitle("Personalización")
-                    SettingsCard {
-                        SettingSwitchRow(
-                            title = "Tema claro/oscuro",
-                            checked = true,
-                            onCheckedChange = { viewModel.toggleDarkMode() }
-                        )
-                        SettingSwitchRow(
-                            title = "Idioma",
-                            leftLabel = "Inglés",
-                            rightLabel = "Español",
-                            checked = switchState,
-                            onCheckedChange = { switchState = it }
-                        )
-                    }
+//                    SectionTitle("Personalización")
+//                    SettingsCard {
+//                        SettingSwitchRow(
+//                            title = "Tema claro/oscuro",
+//                            checked = true,
+//                            onCheckedChange = { viewModel.toggleDarkMode() }
+//                        )
+//                        SettingSwitchRow(
+//                            title = "Idioma",
+//                            leftLabel = "Inglés",
+//                            rightLabel = "Español",
+//                            checked = switchState,
+//                            onCheckedChange = { switchState = it }
+//                        )
+//                    }
 
                     // --- Sección Legal ---
-                    SectionTitle("Legal y Acerca de")
+                    SectionTitle(context.getString(R.string.about_section))
                     SettingsCard {
                         SettingRow(
-                            title = "Términos y condiciones",
+                            title = context.getString(R.string.terms_and_conditions),
                             onClick = { }
                         )
                         SettingRow(
-                            title = "Información de la app",
+                            title = context.getString(R.string.app_info),
                             onClick = { }
                         )
                     }
                     Spacer(modifier = Modifier.height(100.dp))
+
+                    if (showSecurityDialog) {
+                        SecurityDialog(
+                            title = "Restricción de Seguridad",
+                            message = "Ingrese su código de seguridad",
+                            onConfirm = { codigo ->
+                                val esCorrecto = codigo == "123456"
+                                if(!esCorrecto){
+                                    // Solo feedback: vibración, color, etc.
+                                    false // retorna false para que el diálogo no se cierre
+                                } else {
+                                    showSecurityDialog = false
+                                    showNewSecurityDialog = true
+                                    true // correcto, se cierra el diálogo
+                                }
+                            },
+                            onDismiss = {
+                                showSecurityDialog = false
+                            }
+                        )
+                    }
+                    if (showNewSecurityDialog) {
+                        NewSecurityDialog(
+                            title = "Restriccion de Seguridad",
+                            onConfirm = { codigo ->
+                                val esCorrecto = codigo == "123456"
+                                if(!esCorrecto){
+                                    // Solo feedback: vibración, color, etc.
+                                    false // retorna false para que el diálogo no se cierre
+                                } else{
+                                    showNewSecurityDialog = false
+                                    true // correcto, se cierra el diálogo
+                                }
+                            },
+                            onDismiss = {
+                                showNewSecurityDialog = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -341,16 +390,6 @@ fun SettingSwitchRow(
         )
         Row(verticalAlignment = Alignment.CenterVertically){
             leftLabel?.let { Text(it, fontSize = 12.sp, color = Color.Gray) }
-
-//            if(title == "Seguridad"){
-//                CustomSwitchWithLabel(
-//                    checked = checked,
-//                    onCheckedChange = onCheckedChange,
-//                    label = ""
-//                )
-//            } else{
-//
-//            }
 
             if(title == "Tema claro/oscuro"){
 //                ThemeSwitcher(
