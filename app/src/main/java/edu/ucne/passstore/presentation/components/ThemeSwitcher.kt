@@ -109,16 +109,16 @@ fun ThemeSwitcher(
     }
 }
 
-@Composable
-fun localizedString(
-    @androidx.annotation.StringRes resId: Int,
-    locale: String,
-    vararg args: Any
-): String {
-    val context = LocalContext.current
-    val configuration = context.resources.configuration
-    configuration.setLocale(Locale(locale))
-    val localizedContext = context.createConfigurationContext(configuration)
-
-    return localizedContext.resources.getString(resId, *args)
-}
+//@Composable
+//fun localizedString(
+//    @androidx.annotation.StringRes resId: Int,
+//    locale: String,
+//    vararg args: Any
+//): String {
+//    val context = LocalContext.current
+//    val configuration = context.resources.configuration
+//    configuration.setLocale(Locale(locale))
+//    val localizedContext = context.createConfigurationContext(configuration)
+//
+//    return localizedContext.resources.getString(resId, *args)
+//}
