@@ -4,4 +4,23 @@
     <string name="subtitle">Guarda todo lo que no quieras olvidar.</string>
     <string name="empty_box_description">No hay cuentas creadas</string>
     <string name="empty_box_text">Todavía no has ingresado ningúna cuenta. Presione el botón de + para comenzar</string>
+    <string name="bottombar_home">Casa</string>
+    <string name="bottombar_new_account">Nueva cuenta</string>
+    <string name="bottombar_settings">Ajustes</string>
+    <string name="new_account_title">Registrar Nueva Cuenta</string>
+    <string name="user_label">Usuario</string>
+    <string name="password_label">Contraseña</string>
+    <string name="account_select">Cuenta</string>
+    <string name="info_select">Selecciona el servicio al que pertenece esta cuenta</string>
+    <string name="bottom_cancel">Cancelar</string>
+    <string name="bottom_create">Crear</string>
+    <string name="setting_title">Ajustes</string>
+    <string name="greetings">¡Bienvenido de nuevo!</string>
+    <string name="security_section">Seguridad</string>
+    <string name="security_code">Código de seguridad</string>
+    <string name="biometric_auth">Desbloqueo biométrico</string>
+    <string name="lock_screen_timer">Tiempo de bloqueo automático</string>
+    <string name="about_section">Legal y Acerca de</string>
+    <string name="terms_and_conditions">Términos y condiciones</string>
+    <string name="app_info">Información de la aplicación</string>
 </resources>
