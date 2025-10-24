@@ -26,6 +26,7 @@ fun PassStoreNavHost(
         }
         composable<Screen.SubcuentaScreen> {
             SubcuentaScreen(
+                context = context,
                 goHome = { navHostController.navigate(Screen.HomeScreen)}
             )
         }

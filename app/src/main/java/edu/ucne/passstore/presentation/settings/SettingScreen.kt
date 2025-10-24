@@ -32,6 +32,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,8 +53,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import edu.ucne.passstore.R
 import edu.ucne.passstore.presentation.components.AppTheme
+import edu.ucne.passstore.presentation.components.ConfirmSecurityCode
 import edu.ucne.passstore.presentation.components.NewSecurityDialog
 import edu.ucne.passstore.presentation.components.SecurityDialog
+import edu.ucne.passstore.presentation.components.SuccessModal
 import edu.ucne.passstore.presentation.navigation.BottomNavigationBar
 
 @Composable
@@ -62,149 +65,164 @@ fun SettingScreen(
     navHostController: NavHostController,
     viewModel: SettingViewModel = hiltViewModel()
 ){
-    var switchState by remember { mutableStateOf(false) }
-    var showSecurityDialog by remember { mutableStateOf(false) }
-    var showNewSecurityDialog by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    AppTheme{
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Scaffold(
-                containerColor = MaterialTheme.colorScheme.background,
-                bottomBar = {
-                    val barColor = MaterialTheme.colorScheme.surface
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = barColor,
-                        shadowElevation = 8.dp,
-                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+    AppTheme {
+        SettingBodyScreen(
+            context = context,
+            navHostController = navHostController,
+            uiState = uiState,
+            onEvent = viewModel::onEvent
+        )
+    }
+}
+
+@Composable
+fun SettingBodyScreen(
+    context: Context,
+    navHostController: NavHostController,
+    uiState: SettingUiState,
+    onEvent: (SettingUiEvent) -> Unit
+){
+    var switchState by remember { mutableStateOf(false) }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            bottomBar = {
+                val barColor = MaterialTheme.colorScheme.surface
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = barColor,
+                    shadowElevation = 8.dp,
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                ) {
+                    BottomNavigationBar(
+                        context = context,
+                        navHostController = navHostController
+                    )
+                }
+            }
+        ){ innerPadding ->
+            val scrollState = rememberScrollState()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(scrollState, enabled = true)
+            ) {
+                Text(
+                    text = context.getString(R.string.setting_title),
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .shadow(
+                            elevation = 4.dp,
+                            shape = RoundedCornerShape(16.dp),
+                            clip = false
+                        ),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    ),
+                    elevation = CardDefaults.cardElevation(0.dp)
+                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {  }
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        BottomNavigationBar(
-                            context = context,
-                            navHostController = navHostController
+                        Row(verticalAlignment = Alignment.CenterVertically){
+                            Image(
+                                painter = painterResource(R.drawable.user_settings),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(
+                                                Color(0xFF11998E),
+                                                Color(0xFF191654)
+                                            )
+                                        )
+                                    ),
+                                contentScale = ContentScale.Crop,
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Juan Pérez",
+                                    style = TextStyle(
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
+                                    )
+                                )
+                                Text(
+                                    text = context.getString(R.string.greetings),
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Gray
+                                    )
+                                )
+                            }
+                        }
+                        Image(
+                            painter = painterResource(R.drawable.boton_editar),
+                            contentDescription = "",
+                            modifier = Modifier.size(30.dp)
                         )
                     }
                 }
-            ){ innerPadding ->
-                val scrollState = rememberScrollState()
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(innerPadding)
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(scrollState, enabled = true)
-                ) {
-                    Text(
-                        text = context.getString(R.string.setting_title),
-                        style = TextStyle(
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    )
+                Divider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
 
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp)
-                            .shadow(
-                                elevation = 4.dp,
-                                shape = RoundedCornerShape(16.dp),
-                                clip = false
-                            ),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White
-                        ),
-                        elevation = CardDefaults.cardElevation(0.dp)
-                    ){
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {  }
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically){
-                                Image(
-                                    painter = painterResource(R.drawable.user_settings),
-                                    contentDescription = "User",
-                                    modifier = Modifier
-                                        .size(64.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            brush = Brush.linearGradient(
-                                                colors = listOf(
-                                                    Color(0xFF11998E),
-                                                    Color(0xFF191654)
-                                                )
-                                            )
-                                        ),
-                                    contentScale = ContentScale.Crop,
-                                )
-
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column {
-                                    Text(
-                                        text = "Juan Pérez",
-                                        style = TextStyle(
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Black
-                                        )
-                                    )
-                                    Text(
-                                        text = context.getString(R.string.greetings),
-                                        style = TextStyle(
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Gray
-                                        )
-                                    )
-                                }
-                            }
-                            Image(
-                                painter = painterResource(R.drawable.boton_editar),
-                                contentDescription = "",
-                                modifier = Modifier.size(30.dp)
-                            )
+                // --- Sección Seguridad ---
+                SectionTitle(context.getString(R.string.security_section))
+                SettingsCard {
+                    SettingRow(
+                        title = context.getString(R.string.security_code),
+                        value = "******",
+                        onClick = {
+                            onEvent(SettingUiEvent.ShowSecurityCode(true))
                         }
-                    }
-
-                    Divider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
+                    SettingSwitchRow(
+                        title = context.getString(R.string.biometric_auth),
+                        checked = switchState,
+                        onCheckedChange = { switchState = it }
+                    )
+                    SettingRow(
+                        title = context.getString(R.string.lock_screen_timer),
+                        value = "10 min",
+                        onClick = { }
+                    )
+                }
 
-                    // --- Sección Seguridad ---
-                    SectionTitle(context.getString(R.string.security_section))
-                    SettingsCard {
-                        SettingRow(
-                            title = context.getString(R.string.security_code),
-                            value = "******",
-                            onClick = {
-                                showSecurityDialog = true
-                            }
-                        )
-                        SettingSwitchRow(
-                            title = context.getString(R.string.biometric_auth),
-                            checked = switchState,
-                            onCheckedChange = { switchState = it }
-                        )
-                        SettingRow(
-                            title = context.getString(R.string.lock_screen_timer),
-                            value = "10 min",
-                            onClick = { }
-                        )
-                    }
-
-                    // --- Sección Personalización ---
+                // --- Sección Personalización ---
 //                    SectionTitle("Personalización")
 //                    SettingsCard {
 //                        SettingSwitchRow(
@@ -221,58 +239,49 @@ fun SettingScreen(
 //                        )
 //                    }
 
-                    // --- Sección Legal ---
-                    SectionTitle(context.getString(R.string.about_section))
-                    SettingsCard {
-                        SettingRow(
-                            title = context.getString(R.string.terms_and_conditions),
-                            onClick = { }
-                        )
-                        SettingRow(
-                            title = context.getString(R.string.app_info),
-                            onClick = { }
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(100.dp))
+                // --- Sección Legal ---
+                SectionTitle(context.getString(R.string.about_section))
+                SettingsCard {
+                    SettingRow(
+                        title = context.getString(R.string.terms_and_conditions),
+                        onClick = { }
+                    )
+                    SettingRow(
+                        title = context.getString(R.string.app_info),
+                        onClick = { }
+                    )
+                }
+                Spacer(modifier = Modifier.height(100.dp))
 
-                    if (showSecurityDialog) {
-                        SecurityDialog(
-                            title = "Restricción de Seguridad",
-                            message = "Ingrese su código de seguridad",
-                            onConfirm = { codigo ->
-                                val esCorrecto = codigo == "123456"
-                                if(!esCorrecto){
-                                    // Solo feedback: vibración, color, etc.
-                                    false // retorna false para que el diálogo no se cierre
-                                } else {
-                                    showSecurityDialog = false
-                                    showNewSecurityDialog = true
-                                    true // correcto, se cierra el diálogo
-                                }
-                            },
-                            onDismiss = {
-                                showSecurityDialog = false
-                            }
-                        )
-                    }
-                    if (showNewSecurityDialog) {
-                        NewSecurityDialog(
-                            title = "Restriccion de Seguridad",
-                            onConfirm = { codigo ->
-                                val esCorrecto = codigo == "123456"
-                                if(!esCorrecto){
-                                    // Solo feedback: vibración, color, etc.
-                                    false // retorna false para que el diálogo no se cierre
-                                } else{
-                                    showNewSecurityDialog = false
-                                    true // correcto, se cierra el diálogo
-                                }
-                            },
-                            onDismiss = {
-                                showNewSecurityDialog = false
-                            }
-                        )
-                    }
+                if (uiState.showSecurityCode) {
+                    SecurityDialog(
+                        title = context.getString(R.string.restrict_access),
+                        message = context.getString(R.string.insert_code),
+                        context = context,
+                        uiState = uiState,
+                        onEvent = onEvent
+                    )
+                }
+                if (uiState.showNewSecurityCode) {
+                    NewSecurityDialog(
+                        title = context.getString(R.string.restrict_access),
+                        context = context,
+                        uiState = uiState,
+                        onEvent = onEvent
+                    )
+                }
+                if(uiState.showConfirmSecurityCode){
+                    ConfirmSecurityCode(
+                        title = context.getString(R.string.restrict_access),
+                        context = context,
+                        onEvent = onEvent
+                    )
+                }
+                if(uiState.showSuccessModal){
+                    SuccessModal(
+                        title = context.getString(R.string.security_code_updated),
+                        onEvent = onEvent
+                    )
                 }
             }
         }

@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import edu.ucne.passstore.data.local.database.PassStoreDatabase
+import edu.ucne.passstore.presentation.preferences.SettingPreferences
 import edu.ucne.passstore.presentation.preferences.ThemePreferences
 import edu.ucne.passstore.utils.loadCuentaDesdeJson
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +61,22 @@ object AppModule {
     @Singleton
     fun providesThemePreferences(@ApplicationContext context: Context): ThemePreferences {
         return ThemePreferences(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providesSettingPreferences(@ApplicationContext context: Context): SettingPreferences{
+        val settingPreferences = SettingPreferences(context)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                settingPreferences.initializeDefaultPin()
+            } catch (e: Exception) {
+                Log.e("DATASTORE_INIT", "Error inicializando PIN por defecto", e)
+            }
+        }
+
+        return settingPreferences
     }
 
     @Provides

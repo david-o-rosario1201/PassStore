@@ -27,10 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 
 @Composable
 fun ThemeSwitcher(
@@ -108,17 +106,3 @@ fun ThemeSwitcher(
         }
     }
 }
-
-//@Composable
-//fun localizedString(
-//    @androidx.annotation.StringRes resId: Int,
-//    locale: String,
-//    vararg args: Any
-//): String {
-//    val context = LocalContext.current
-//    val configuration = context.resources.configuration
-//    configuration.setLocale(Locale(locale))
-//    val localizedContext = context.createConfigurationContext(configuration)
-//
-//    return localizedContext.resources.getString(resId, *args)
-//}

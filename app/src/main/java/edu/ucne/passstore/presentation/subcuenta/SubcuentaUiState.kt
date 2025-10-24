@@ -10,6 +10,6 @@ data class SubcuentaUiState(
     val cuentaId: Int = 0,
     val cuentas: List<CuentaEntity> = emptyList(),
     val subcuentas: List<SubcuentaEntity> = emptyList(),
-    val errorMessage: String = "",
+    val errorMessage: Boolean = false,
     val success: Boolean = false
 )

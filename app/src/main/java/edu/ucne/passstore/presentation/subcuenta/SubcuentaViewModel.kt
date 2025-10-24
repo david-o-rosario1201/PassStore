@@ -64,12 +64,12 @@ class SubcuentaViewModel @Inject constructor(
                         || _uiState.value.cuentaId == 0){
 
                         _uiState.update {
-                            it.copy(errorMessage = "Por favor complete todos los campos")
+                            it.copy(errorMessage = true)
                         }
                     } else{
                         _uiState.update {
                             it.copy(
-                                errorMessage = "",
+                                errorMessage = false,
                                 success = true
                             )
                         }
@@ -80,7 +80,7 @@ class SubcuentaViewModel @Inject constructor(
             SubcuentaUiEvent.Delete -> TODO()
             SubcuentaUiEvent.ErrorDismiss -> {
                 _uiState.update {
-                    it.copy(errorMessage = "")
+                    it.copy(errorMessage = false)
                 }
             }
         }
