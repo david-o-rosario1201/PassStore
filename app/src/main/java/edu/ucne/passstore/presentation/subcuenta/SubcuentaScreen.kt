@@ -4,6 +4,7 @@
 
 package edu.ucne.passstore.presentation.subcuenta
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -48,6 +49,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -60,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
+import edu.ucne.passstore.R
 import edu.ucne.passstore.presentation.components.AppTheme
 import edu.ucne.passstore.presentation.components.CustomDropDownMenu
 import edu.ucne.passstore.presentation.components.PasswordVisibilityToggle
@@ -68,13 +71,14 @@ import kotlinx.coroutines.delay
 @Composable
 fun SubcuentaScreen(
     goHome: () -> Unit,
+    context: Context,
     viewModel: SubcuentaViewModel = hiltViewModel()
 ){
     val uiSate by viewModel.uiState.collectAsState()
-    //val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     AppTheme{
         SubcuentaBodyScreen(
+            context = context,
             uiState = uiSate,
             onEvent = viewModel::onEvent,
             goHome = goHome
@@ -85,6 +89,7 @@ fun SubcuentaScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubcuentaBodyScreen(
+    context: Context,
     uiState: SubcuentaUiState,
     onEvent: (SubcuentaUiEvent) -> Unit,
     goHome: () -> Unit
@@ -93,11 +98,11 @@ fun SubcuentaBodyScreen(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     var passwordVisible by remember { mutableStateOf(false) }
-    val showBanner = uiState.errorMessage.isNotEmpty()
+    val showBanner = uiState.errorMessage
     var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState) {
-        if(uiState.errorMessage.isEmpty() && uiState.success){
+        if(!uiState.errorMessage && uiState.success){
             goHome()
         }
     }
@@ -113,7 +118,7 @@ fun SubcuentaBodyScreen(
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            text = "Registrar Nueva Cuenta",
+                            text = context.getString(R.string.new_account_title),
                             style = TextStyle(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -121,7 +126,7 @@ fun SubcuentaBodyScreen(
                             )
                         )
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary
                     ),
@@ -147,13 +152,13 @@ fun SubcuentaBodyScreen(
                             .fillMaxWidth()
                             .padding(vertical = 10.dp),
                         visible = true,
-                        label = uiState.errorMessage,
+                        label = context.getString(R.string.must_complete_all_fields),
                         onDismiss = { onEvent(SubcuentaUiEvent.ErrorDismiss) }
                     )
                 }
 
                 OutlinedTextField(
-                    label = {Text("Usuario")},
+                    label = {Text(context.getString(R.string.user_label))},
                     value = uiState.nombreUsuario,
                     onValueChange = {
                         onEvent(SubcuentaUiEvent.NombreChanged(it))
@@ -183,7 +188,7 @@ fun SubcuentaBodyScreen(
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 OutlinedTextField(
-                    label = {Text("Contraseña")},
+                    label = {Text(context.getString(R.string.password_label))},
                     value = uiState.password,
                     onValueChange = {
                         onEvent(SubcuentaUiEvent.PasswordChanged(it))
@@ -231,7 +236,7 @@ fun SubcuentaBodyScreen(
                 )
 
                 Text(
-                    text = "Selecciona el servicio al que pertenece esta cuenta.",
+                    text = context.getString(R.string.info_select),
                     style = TextStyle(
                         fontSize = 15.sp,
                         fontWeight = FontWeight(400),
@@ -258,7 +263,7 @@ fun SubcuentaBodyScreen(
                         modifier = Modifier.width(150.dp)
                     ) {
                         Text(
-                            text = "Cancelar",
+                            text = context.getString(R.string.cancel_button),
                             style = TextStyle(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
@@ -279,7 +284,7 @@ fun SubcuentaBodyScreen(
                         modifier = Modifier.width(150.dp)
                     ) {
                         Text(
-                            text = "Crear",
+                            text = context.getString(R.string.bottom_create),
                             style = TextStyle(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
@@ -290,8 +295,9 @@ fun SubcuentaBodyScreen(
 
                 ConfirmationDialog(
                     showDialog = showDialog,
-                    title = "Datos sin guardar",
-                    message = "¿Estás seguro de que deseas eliminar esta cuenta?",
+                    title = context.getString(R.string.data_without_save),
+                    message = context.getString(R.string.confirm_modal_go_out_question),
+                    context = context,
                     onConfirm = { goHome() },
                     onDismiss = { showDialog = false }
                 )
@@ -341,6 +347,7 @@ fun ConfirmationDialog(
     showDialog: Boolean,
     title: String,
     message: String,
+    context: Context,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ){
@@ -351,12 +358,12 @@ fun ConfirmationDialog(
             text = { Text(text = message) },
             confirmButton = {
                 Button(onClick = { onConfirm() }) {
-                    Text("Aceptar")
+                    Text(context.getString(R.string.accept_button))
                 }
             },
             dismissButton = {
                 Button(onClick = { onDismiss() }) {
-                    Text("Cancelar")
+                    Text(context.getString(R.string.cancel_button))
                 }
             }
         )
@@ -368,6 +375,7 @@ fun ConfirmationDialog(
 fun SubcuentaPreview(){
     SubcuentaBodyScreen(
         uiState = SubcuentaUiState(),
+        context = LocalContext.current,
         onEvent = {},
         goHome = {}
     )
