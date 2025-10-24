@@ -1,5 +1,11 @@
 package edu.ucne.passstore.presentation.components
 
+import android.content.Context
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,17 +24,16 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,23 +49,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import edu.ucne.passstore.R
+import androidx.compose.ui.graphics.graphicsLayer
+import edu.ucne.passstore.presentation.settings.SettingUiEvent
+import edu.ucne.passstore.presentation.settings.SettingUiState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecurityDialog(
     title: String,
     message: String,
-    onConfirm: (String) -> Boolean,
-    onDismiss: () -> Unit
+    context: Context,
+    uiState: SettingUiState,
+    onEvent: (SettingUiEvent) -> Unit
 ){
     val pinValues = remember {
         mutableStateListOf("", "", "", "", "", "")
     }
     val focusRequesters = List(6) {FocusRequester()}
     val haptic = LocalHapticFeedback.current
-    val errorState = remember { mutableStateOf(false) }
+    val shake = remember { Animatable(0f) }
 
-    Dialog(onDismissRequest = {onDismiss()}) {
+    LaunchedEffect(uiState.showEmptyMessage,
+        uiState.showIncompleteMessage, uiState.checkCodeIsIncorrect){
+
+        shake.snapTo(0f)
+        shake.animateTo(
+            targetValue = 1f,
+            animationSpec = repeatable(
+                iterations = 3,
+                animation = tween(80, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+        shake.snapTo(0f)
+        kotlinx.coroutines.delay(1000)
+        onEvent(SettingUiEvent.ResetErrorMessages)
+    }
+
+    Dialog(onDismissRequest = {onEvent(SettingUiEvent.ShowSecurityCode(false))}) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -79,10 +104,10 @@ fun SecurityDialog(
                         shape = RoundedCornerShape(50.dp),
                         color = Color(0xFFE0E0E0)
                     ){
-                        IconButton(onClick = {onDismiss()}) {
+                        IconButton(onClick = {onEvent(SettingUiEvent.ShowSecurityCode(false))}) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Cerrar",
+                                contentDescription = null,
                                 tint = Color.Black
                             )
                         }
@@ -120,6 +145,10 @@ fun SecurityDialog(
 
                 // Campos de código (PIN de 6 dígitos como ejemplo)
                 Row(
+                    modifier = Modifier
+                        .graphicsLayer {
+                            translationX = (shake.value - 0.5f) * 20f
+                        },
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ){
@@ -148,24 +177,45 @@ fun SecurityDialog(
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
                             ),
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                            colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Color.Black,
                                 unfocusedTextColor = Color.Black,
-                                cursorColor = MaterialTheme.colorScheme.onSurface,
-                                focusedBorderColor = if(errorState.value) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = if(errorState.value) MaterialTheme.colorScheme.error else Color.Gray,
-                                containerColor = if (pinValues[index].isNotEmpty()) Color(0xFFE8F0FF) else MaterialTheme.colorScheme.background
+                                cursorColor = if(pinValues[index].isNotEmpty()) Color.Black else MaterialTheme.colorScheme.onSurface,
+                                focusedBorderColor = if (uiState.errorState) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = if (uiState.errorState) MaterialTheme.colorScheme.error else Color.Gray,
+                                focusedContainerColor = if (pinValues[index].isNotEmpty()) Color(0xFFE8F0FF) else MaterialTheme.colorScheme.background,
+                                unfocusedContainerColor = if (pinValues[index].isNotEmpty()) Color(0xFFE8F0FF) else MaterialTheme.colorScheme.background
                             )
+
                         )
                     }
                 }
 
-                if(errorState.value) {
+                if(uiState.checkCodeIsIncorrect) {
                     Text(
-                        text = "Código incorrecto",
-                        color = Color.Red,
+                        text = context.getString(R.string.incorrect_code),
+                        color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+
+                if(uiState.showEmptyMessage) {
+                    Text(
+                        text = context.getString(R.string.must_insert_code),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+
+                if(uiState.showIncompleteMessage){
+                    Text(
+                        text = context.getString(R.string.complete_all_digits),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -173,14 +223,10 @@ fun SecurityDialog(
                 //Boton confirmar
                 Button(
                     onClick = {
-                        val code = pinValues.joinToString("")
-                        val success = onConfirm(code)
-                        if(!success){
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            errorState.value = true
-                            pinValues.replaceAll { "" }
-                        } else {
-                            errorState.value = false
+                        onEvent(SettingUiEvent.CheckSingleCodeIsNotEmpty(pinValues))
+
+                        if(pinValues.all { it.isNotEmpty() }){
+                            onEvent(SettingUiEvent.CheckIsCorrect(pinValues))
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -190,7 +236,7 @@ fun SecurityDialog(
                     )
                 ) {
                     Text(
-                        text = "Confirmar acceso",
+                        text = context.getString(R.string.confirm_access),
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
