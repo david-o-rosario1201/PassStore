@@ -23,4 +23,23 @@
     <string name="about_section">Legal and About</string>
     <string name="terms_and_conditions">Terms and conditions</string>
     <string name="app_info">App information</string>
+    <string name="confirm_modal_question">Are you sure you want to change the security code?</string>
+    <string name="confirm_push">Push </string>
+    <string name="confirm_accept">“Accept”</string>
+    <string name="confirm_continue"> to continue.</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="accept_button">Accept</string>
+    <string name="insert_new_code">Insert new code</string>
+    <string name="repeat_code">Repeat code</string>
+    <string name="incorrect_code">Incorrect code</string>
+    <string name="must_insert_code">You must insert a code</string>
+    <string name="complete_all_digits">Complete all digits</string>
+    <string name="codes_are_different">Codes are different</string>
+    <string name="confirm_access">Confirm access</string>
+    <string name="restrict_access">Restrict access</string>
+    <string name="insert_code">Insert your security code</string>
+    <string name="security_code_updated">Security code updated</string>
+    <string name="data_without_save">Data without save</string>
+    <string name="confirm_modal_go_out_question">Are you sure you want to exit without saving?</string>
+    <string name="must_complete_all_fields">Please complete all fields</string>
 </resources>
