@@ -42,4 +42,5 @@
     <string name="data_without_save">Data without save</string>
     <string name="confirm_modal_go_out_question">Are you sure you want to exit without saving?</string>
     <string name="must_complete_all_fields">Please complete all fields</string>
+    <string name="save">Save</string>
 </resources>
