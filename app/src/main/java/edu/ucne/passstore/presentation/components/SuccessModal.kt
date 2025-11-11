@@ -1,6 +1,5 @@
 package edu.ucne.passstore.presentation.components
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +28,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SuccessModal(
-    context: Context,
+    title: String,
     durationMillis: Long = 2000,
     onEvent: (SettingUiEvent) -> Unit
 ){
@@ -48,7 +47,7 @@ fun SuccessModal(
                 ) {
                     //Titulo
                     Text(
-                        text = context.getString(R.string.restrict_access),
+                        text = title,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 22.sp,
