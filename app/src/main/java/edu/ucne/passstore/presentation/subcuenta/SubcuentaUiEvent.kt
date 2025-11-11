@@ -4,6 +4,9 @@ sealed interface SubcuentaUiEvent {
     data class NombreChanged(val nombre: String): SubcuentaUiEvent
     data class PasswordChanged(val password: String): SubcuentaUiEvent
     data class CuentaIdChanged(val cuentaId: Int): SubcuentaUiEvent
+    data class CuentaIdSelected(val cuentaId: Int): SubcuentaUiEvent
+    data class SubcuentaIdSelected(val subcuentaId: Int): SubcuentaUiEvent
+    data class ShowEditModal(val showEdit: Boolean): SubcuentaUiEvent
     data object Save: SubcuentaUiEvent
     data object Delete: SubcuentaUiEvent
     data object ErrorDismiss: SubcuentaUiEvent
