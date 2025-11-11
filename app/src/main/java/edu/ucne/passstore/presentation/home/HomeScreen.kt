@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
 
 package edu.ucne.passstore.presentation.home
 
@@ -32,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +58,11 @@ import androidx.navigation.NavHostController
 import edu.ucne.passstore.R
 import edu.ucne.passstore.data.local.entities.CuentaEntity
 import edu.ucne.passstore.presentation.components.AppTheme
+import edu.ucne.passstore.presentation.components.SecurityDialog
 import edu.ucne.passstore.presentation.navigation.BottomNavigationBar
+import edu.ucne.passstore.presentation.settings.SettingUiEvent
+import edu.ucne.passstore.presentation.settings.SettingUiState
+import edu.ucne.passstore.presentation.settings.SettingViewModel
 import java.util.Locale
 
 
@@ -63,15 +70,22 @@ import java.util.Locale
 fun HomeScreen(
     context: Context,
     navHostController: NavHostController,
-    viewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    goViewSubcuentaScreen: (Int) -> Unit,
+    settingViewModel: SettingViewModel = hiltViewModel()
 ){
-    val uiState by  viewModel.uiState.collectAsState()
+    val homeUiState by  homeViewModel.uiState.collectAsState()
+    val settingUiState by settingViewModel.uiState.collectAsState()
 
     AppTheme{
         HomeBodyScreen(
             context = context,
-            uiState = uiState,
-            navHostController = navHostController
+            homeUiState = homeUiState,
+            settingUiState = settingUiState,
+            goViewSubcuentaScreen = goViewSubcuentaScreen,
+            navHostController = navHostController,
+            onSettingEvent = settingViewModel::onEvent,
+            onHomeEvent = homeViewModel::onEvent
         )
     }
 }
@@ -79,12 +93,21 @@ fun HomeScreen(
 @Composable
 fun HomeBodyScreen(
     context: Context,
-    uiState: HomeUiState,
-    navHostController: NavHostController
+    homeUiState: HomeUiState,
+    settingUiState: SettingUiState,
+    goViewSubcuentaScreen: (Int) -> Unit,
+    navHostController: NavHostController,
+    onSettingEvent: (SettingUiEvent) -> Unit,
+    onHomeEvent: (HomeUiEvent) -> Unit
 ) {
-
     var currentLocal by remember { mutableStateOf(Locale.getDefault().language) }
 
+    LaunchedEffect(settingUiState){
+
+        if(settingUiState.codeSucceeded){
+            goViewSubcuentaScreen(homeUiState.cuentaIdSelected)
+        }
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -149,12 +172,11 @@ fun HomeBodyScreen(
                     .padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ){
-                if(uiState.subcuentas.isEmpty()){
+                if(homeUiState.subcuentas.isEmpty()){
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
-
                     ){
                         Image(
                             painter = painterResource(R.drawable.cajavacia),
@@ -180,15 +202,16 @@ fun HomeBodyScreen(
                             .padding(top = 24.dp)
                     ){
                         items(
-                            uiState.cuentas.filter { cuenta ->
-                                uiState.subcuentas.any { subcuenta ->
+                            homeUiState.cuentas.filter { cuenta ->
+                                homeUiState.subcuentas.any { subcuenta ->
                                     subcuenta.cuentaId == cuenta.cuentaId
                                 }
                             }){ cuenta ->
-                            SubcuentaRow(
+                            CuentaRow(
                                 it = cuenta,
-                                cuentas = uiState.cuentas,
-                                onClick = {}
+                                cuentas = homeUiState.cuentas,
+                                onSettingEvent = onSettingEvent,
+                                onHomeEvent = onHomeEvent
                             )
                         }
                     }
@@ -201,16 +224,27 @@ fun HomeBodyScreen(
                         Text("EN")
                     }
                 }
+
+                if(settingUiState.showSecurityCode){
+                    SecurityDialog(
+                        title = context.getString(R.string.restrict_access),
+                        message = "Estas intentando mostrar tus datos personales, para continuar ingrese el código de seguridad.",
+                        context = context,
+                        uiState = settingUiState,
+                        onEvent = onSettingEvent
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun SubcuentaRow(
+fun CuentaRow(
     it: CuentaEntity,
     cuentas: List<CuentaEntity>,
-    onClick: (Int) -> Unit
+    onSettingEvent: (SettingUiEvent) -> Unit,
+    onHomeEvent: (HomeUiEvent) -> Unit
 ){
     val context = LocalContext.current
     val cuenta = cuentas.find { cuentaLocal ->
@@ -218,7 +252,10 @@ fun SubcuentaRow(
     }
     val resIdItem = context.resources.getIdentifier(cuenta?.iconoResName, "drawable", context.packageName)
     Card(
-        onClick = {  },
+        onClick = {
+            onSettingEvent(SettingUiEvent.ShowSecurityCode(true))
+            onHomeEvent(HomeUiEvent.CuentaIdSelected(it.cuentaId ?: 0))
+        },
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -269,7 +306,11 @@ fun SubcuentaRow(
 fun HomeBodyScreenPreview(){
     HomeBodyScreen(
         context = LocalContext.current,
-        uiState = HomeUiState(),
-        navHostController = NavHostController(LocalContext.current)
+        homeUiState = HomeUiState(),
+        settingUiState = SettingUiState(),
+        goViewSubcuentaScreen = {},
+        navHostController = NavHostController(LocalContext.current),
+        onSettingEvent = {},
+        onHomeEvent = {}
     )
 }
