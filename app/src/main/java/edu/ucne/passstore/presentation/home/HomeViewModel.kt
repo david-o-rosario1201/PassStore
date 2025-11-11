@@ -71,4 +71,14 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun onEvent(event: HomeUiEvent){
+        when(event){
+            is HomeUiEvent.CuentaIdSelected ->{
+                _uiState.update {
+                    it.copy(cuentaIdSelected = event.cuentaIdSelected)
+                }
+            }
+        }
+    }
 }
