@@ -9,7 +9,9 @@ data class SubcuentaUiState(
     val password: String = "",
     val cuentaId: Int = 0,
     val cuentas: List<CuentaEntity> = emptyList(),
+    val cuenta: CuentaEntity? = null,
     val subcuentas: List<SubcuentaEntity> = emptyList(),
     val errorMessage: Boolean = false,
-    val success: Boolean = false
+    val success: Boolean = false,
+    val showEditModal: Boolean = false
 )
