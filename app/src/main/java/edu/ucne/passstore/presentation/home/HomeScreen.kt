@@ -227,7 +227,6 @@ fun HomeBodyScreen(
 
                 if(settingUiState.showSecurityCode){
                     SecurityDialog(
-                        title = context.getString(R.string.restrict_access),
                         message = "Estas intentando mostrar tus datos personales, para continuar ingrese el código de seguridad.",
                         context = context,
                         uiState = settingUiState,
