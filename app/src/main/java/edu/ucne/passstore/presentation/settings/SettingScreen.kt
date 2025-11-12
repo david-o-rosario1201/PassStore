@@ -53,7 +53,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import edu.ucne.passstore.R
 import edu.ucne.passstore.presentation.components.AppTheme
-import edu.ucne.passstore.presentation.components.ConfirmSecurityCode
+import edu.ucne.passstore.presentation.components.ConfirmModal
 import edu.ucne.passstore.presentation.components.NewSecurityDialog
 import edu.ucne.passstore.presentation.components.SecurityDialog
 import edu.ucne.passstore.presentation.components.SuccessModal
@@ -255,8 +255,6 @@ fun SettingBodyScreen(
 
                 if (uiState.showSecurityCode) {
                     SecurityDialog(
-                        title = context.getString(R.string.restrict_access),
-                        message = context.getString(R.string.insert_code),
                         context = context,
                         uiState = uiState,
                         onEvent = onEvent
@@ -270,11 +268,15 @@ fun SettingBodyScreen(
                         onEvent = onEvent
                     )
                 }
-                if(uiState.showConfirmSecurityCode){
-                    ConfirmSecurityCode(
-                        title = context.getString(R.string.restrict_access),
+                if(uiState.showConfirmModal){
+                    ConfirmModal(
+                        //cambiar esta pregunta
+                        question = context.getString(R.string.confirm_modal_question),
                         context = context,
-                        onEvent = onEvent
+                        onEvent = onEvent,
+                        onConfirm = {
+                            onEvent(SettingUiEvent.Save)
+                        }
                     )
                 }
                 if(uiState.showSuccessModal){

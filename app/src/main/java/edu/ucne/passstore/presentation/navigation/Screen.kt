@@ -11,4 +11,7 @@ sealed class Screen {
 
     @Serializable
     data object SettingScreen: Screen()
+
+    @Serializable
+    data class ViewSubcuentaScreen(val cuentaId: Int): Screen()
 }

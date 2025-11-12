@@ -77,7 +77,47 @@ class SubcuentaViewModel @Inject constructor(
                     }
                 }
             }
-            SubcuentaUiEvent.Delete -> TODO()
+            is SubcuentaUiEvent.CuentaIdSelected -> {
+                viewModelScope.launch {
+                    try {
+                        val cuentaSelected = cuentaRepository.getCuenta(event.cuentaId)
+                        subcuentaRepository.getSubcuentasByCuentaId(event.cuentaId).collect{ subcuentas ->
+                            _uiState.update {
+                                it.copy(
+                                    cuenta = cuentaSelected,
+                                    subcuentas = subcuentas
+                                )
+                            }
+                        }
+                    } catch (e: Exception){
+                        Log.e("ViewModel", "Error obteniendo cuentas: ${e.message}", e)
+                        e.printStackTrace()
+                    }
+                }
+            }
+            SubcuentaUiEvent.Delete -> {
+                viewModelScope.launch {
+                    subcuentaRepository.deleteSubcuenta(_uiState.value.toSubcuentaEntity())
+                }
+            }
+            is SubcuentaUiEvent.SubcuentaIdSelected -> {
+                viewModelScope.launch {
+                    val subcuenta = subcuentaRepository.getSubcuenta(event.subcuentaId)
+                    _uiState.update {
+                        it.copy(
+                            subcuentaId = subcuenta?.subcuentaId,
+                            nombreUsuario = subcuenta?.nombreUsuario ?: "",
+                            password = subcuenta?.password ?: "",
+                            cuentaId = subcuenta?.cuentaId ?: 0
+                        )
+                    }
+                }
+            }
+            is SubcuentaUiEvent.ShowEditModal -> {
+                _uiState.update {
+                    it.copy(showEditModal = event.showEdit)
+                }
+            }
             SubcuentaUiEvent.ErrorDismiss -> {
                 _uiState.update {
                     it.copy(errorMessage = false)

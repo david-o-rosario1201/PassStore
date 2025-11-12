@@ -173,7 +173,7 @@ fun SubcuentaBodyScreen(
                         },
                     shape = RoundedCornerShape(10.dp),
                     keyboardOptions = KeyboardOptions(
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
@@ -203,7 +203,7 @@ fun SubcuentaBodyScreen(
                         },
                     shape = RoundedCornerShape(10.dp),
                     keyboardOptions = KeyboardOptions(
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(

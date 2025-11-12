@@ -24,4 +24,10 @@ interface SubcuentaDao {
 
     @Query("SELECT * FROM Subcuentas")
     fun getSubcuentas(): Flow<List<SubcuentaEntity>>
+
+    @Query("""
+        SELECT * FROM Subcuentas
+        WHERE cuentaId = :cuentaId
+    """)
+    fun getSubcuentasByCuentaId(cuentaId: Int): Flow<List<SubcuentaEntity>>
 }

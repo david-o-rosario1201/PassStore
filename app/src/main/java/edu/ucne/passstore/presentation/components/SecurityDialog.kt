@@ -50,13 +50,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import edu.ucne.passstore.R
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextAlign
 import edu.ucne.passstore.presentation.settings.SettingUiEvent
 import edu.ucne.passstore.presentation.settings.SettingUiState
 
 @Composable
 fun SecurityDialog(
-    title: String,
-    message: String,
+    message: String = "",
     context: Context,
     uiState: SettingUiState,
     onEvent: (SettingUiEvent) -> Unit
@@ -124,7 +124,7 @@ fun SecurityDialog(
 
                 //Titulo
                 Text(
-                    text = title,
+                    text = context.getString(R.string.restrict_access),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,
@@ -133,11 +133,25 @@ fun SecurityDialog(
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                //Mensaje
+                //Message
                 Text(
                     text = message,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                //Insert code
+                Text(
+                    text = context.getString(R.string.insert_code),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 

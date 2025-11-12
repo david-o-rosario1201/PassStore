@@ -81,6 +81,8 @@ class SettingViewModel @Inject constructor(
                             it.copy(
                                 errorState = false,
                                 showSecurityCode = false,
+                                //Como no voy a abrirlo en el home, enviare a mostrar la subcuenta
+                                codeSucceeded = true,
                                 showNewSecurityCode = true
                             )
                         }
@@ -100,7 +102,7 @@ class SettingViewModel @Inject constructor(
                         it.copy(
                             errorState = false,
                             showNewSecurityCode = false,
-                            showConfirmSecurityCode = true,
+                            showConfirmModal = true,
                             pinCode = newCode
                         )
                     }
@@ -123,6 +125,11 @@ class SettingViewModel @Inject constructor(
                     it.copy(showSuccessModal = event.showModal)
                 }
             }
+            is SettingUiEvent.ShowConfirmModal -> {
+                _uiState.update {
+                    it.copy(showConfirmModal = event.showModal)
+                }
+            }
             SettingUiEvent.ResetErrorMessages -> {
                 _uiState.update {
                     it.copy(
@@ -139,7 +146,7 @@ class SettingViewModel @Inject constructor(
                     it.copy(
                         showSecurityCode = false,
                         showNewSecurityCode = false,
-                        showConfirmSecurityCode = false
+                        showConfirmModal = false
                     )
                 }
             }

@@ -42,4 +42,7 @@
     <string name="data_without_save">Datos sin guardar</string>
     <string name="confirm_modal_go_out_question">¿Estás seguro de que deseas salir sin guardar?</string>
     <string name="must_complete_all_fields">Por favor complete todos los campos</string>
+    <string name="save">Guardar</string>
+    <string name="confirm_modal_delete_question">¿Éstas seguro que quieres eliminar esta cuenta?</string>
+    <string name="action_success">Acción realizada con éxito</string>
 </resources>

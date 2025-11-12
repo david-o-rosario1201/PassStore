@@ -8,4 +8,5 @@ data class HomeUiState(
     val errorNombre: String? = "",
     val subcuentas: List<SubcuentaEntity> = emptyList(),
     val cuentas: List<CuentaEntity> = emptyList(),
+    val cuentaIdSelected: Int = 0
 )

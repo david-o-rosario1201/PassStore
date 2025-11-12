@@ -11,4 +11,5 @@ class SubcuentaRepository @Inject constructor(
     suspend fun getSubcuenta(subcuentaId: Int) = subcuentaDao.getSubcuenta(subcuentaId)
     suspend fun deleteSubcuenta(subcuenta: SubcuentaEntity) = subcuentaDao.deleteSubcuenta(subcuenta)
     fun getSubcuentas() = subcuentaDao.getSubcuentas()
+    fun getSubcuentasByCuentaId(cuentaId: Int) = subcuentaDao.getSubcuentasByCuentaId(cuentaId)
 }
