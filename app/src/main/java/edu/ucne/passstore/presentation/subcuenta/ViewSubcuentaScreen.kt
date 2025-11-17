@@ -65,6 +65,7 @@ import edu.ucne.passstore.data.local.entities.SubcuentaEntity
 import edu.ucne.passstore.presentation.components.AppTheme
 import edu.ucne.passstore.presentation.components.ConfirmModal
 import edu.ucne.passstore.presentation.components.PasswordVisibilityToggle
+import edu.ucne.passstore.presentation.components.SecureScreen
 import edu.ucne.passstore.presentation.components.SuccessModal
 import edu.ucne.passstore.presentation.components.copySensitiveText
 import edu.ucne.passstore.presentation.settings.SettingUiEvent
@@ -83,15 +84,17 @@ fun ViewSubcuentaScreen(
     val subcuentaUiState by subcuentaViewModel.uiState.collectAsState()
     val settingUiState by settingViewModel.uiState.collectAsState()
     AppTheme {
-        ViewSubcuentaBodyScreen(
-            cuentaId = cuentaId,
-            subcuentaUiState = subcuentaUiState,
-            settingUiState = settingUiState,
-            onSettingEvent = settingViewModel::onEvent,
-            onSubcuentaEvent = subcuentaViewModel::onEvent,
-            context = context,
-            goBack = goBack
-        )
+        SecureScreen{
+            ViewSubcuentaBodyScreen(
+                cuentaId = cuentaId,
+                subcuentaUiState = subcuentaUiState,
+                settingUiState = settingUiState,
+                onSettingEvent = settingViewModel::onEvent,
+                onSubcuentaEvent = subcuentaViewModel::onEvent,
+                context = context,
+                goBack = goBack
+            )
+        }
     }
 }
 
