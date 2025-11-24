@@ -67,6 +67,15 @@ object AppModule {
     @Provides
     @Singleton
     fun providesUserPreferences(@ApplicationContext context: Context): UserPreferences{
+        val userPreferences = UserPreferences(context)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                userPreferences.initializeDefaultUser()
+            } catch (e: Exception){
+                Log.e("DATASTORE_INIT", "Error inicializando fecha por defecto", e)
+            }
+        }
+
         return UserPreferences(context)
     }
 
