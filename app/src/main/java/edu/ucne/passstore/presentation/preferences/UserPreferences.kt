@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 val Context.userDataStore by preferencesDataStore(name = "user")
@@ -14,6 +16,15 @@ class UserPreferences  @Inject constructor(
     companion object{
         val USER_NAME = stringPreferencesKey("user_name")
         val USER_DATE_REGISTER = stringPreferencesKey("user_date_register")
+        val fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    }
+
+    suspend fun initializeDefaultUser(){
+        context.userDataStore.edit { pref ->
+            if(!pref.contains(USER_DATE_REGISTER)){
+                pref[USER_DATE_REGISTER] = fechaHoy
+            }
+        }
     }
 
     suspend fun getUserInfo(): UserInfo{
