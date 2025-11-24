@@ -174,7 +174,7 @@ fun UserViewModal(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             ),
-                            modifier = Modifier.width(150.dp)
+                            modifier = Modifier.width(140.dp)
                         ) {
                             Text(
                                 text = "Cancelar",
@@ -193,7 +193,7 @@ fun UserViewModal(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
                             ),
-                            modifier = Modifier.width(150.dp)
+                            modifier = Modifier.width(140.dp)
                         ) {
                             Text(
                                 text = "Guardar",
