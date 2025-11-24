@@ -10,7 +10,10 @@ sealed interface SettingUiEvent {
     data class ShowSecurityCode(val showSecurityCode: Boolean): SettingUiEvent
     data class ShowSuccessModal(val showModal: Boolean): SettingUiEvent
     data class ShowConfirmModal(val showModal: Boolean): SettingUiEvent
-    data object Save: SettingUiEvent
+    data class ShowUserView(val showModal: Boolean): SettingUiEvent
+    data class SetUserInfo(val userName: String): SettingUiEvent
+    data class UserNameChanged(val userName: String): SettingUiEvent
+    data object SetPinCode: SettingUiEvent
     data object ResetErrorMessages: SettingUiEvent
     data object DismissAllModals: SettingUiEvent
 }

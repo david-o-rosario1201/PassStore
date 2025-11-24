@@ -13,6 +13,7 @@ import dagger.hilt.components.SingletonComponent
 import edu.ucne.passstore.data.local.database.PassStoreDatabase
 import edu.ucne.passstore.presentation.preferences.SettingPreferences
 import edu.ucne.passstore.presentation.preferences.ThemePreferences
+import edu.ucne.passstore.presentation.preferences.UserPreferences
 import edu.ucne.passstore.utils.loadCuentaDesdeJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,6 +62,21 @@ object AppModule {
     @Singleton
     fun providesThemePreferences(@ApplicationContext context: Context): ThemePreferences {
         return ThemePreferences(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providesUserPreferences(@ApplicationContext context: Context): UserPreferences{
+        val userPreferences = UserPreferences(context)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                userPreferences.initializeDefaultUser()
+            } catch (e: Exception){
+                Log.e("DATASTORE_INIT", "Error inicializando fecha por defecto", e)
+            }
+        }
+
+        return UserPreferences(context)
     }
 
     @Provides

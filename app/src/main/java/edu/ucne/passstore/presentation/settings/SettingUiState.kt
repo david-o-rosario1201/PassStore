@@ -2,8 +2,11 @@ package edu.ucne.passstore.presentation.settings
 
 data class SettingUiState(
     val pinCode: String = "",
+    val userName: String = "",
+    val userDateRegister: String = "",
     val showSecurityCode: Boolean = false,
     val showNewSecurityCode: Boolean = false,
+    val showUserView: Boolean = false,
     val showConfirmModal: Boolean = false,
     val checkCodeIsNotEmpty: Boolean = false,
     val checkCodeIsIncorrect: Boolean = false,

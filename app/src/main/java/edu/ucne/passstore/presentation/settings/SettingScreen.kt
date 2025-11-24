@@ -143,7 +143,7 @@ fun SettingBodyScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {  }
+                            .clickable { onEvent(SettingUiEvent.ShowUserView(true)) }
                             .padding(horizontal = 12.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
@@ -169,7 +169,7 @@ fun SettingBodyScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Juan Pérez",
+                                    text = uiState.userName,
                                     style = TextStyle(
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold,
@@ -275,13 +275,24 @@ fun SettingBodyScreen(
                         context = context,
                         onEvent = onEvent,
                         onConfirm = {
-                            onEvent(SettingUiEvent.Save)
+                            onEvent(SettingUiEvent.SetPinCode)
                         }
                     )
                 }
                 if(uiState.showSuccessModal){
                     SuccessModal(
                         title = context.getString(R.string.security_code_updated),
+                        onEvent = onEvent
+                    )
+                }
+
+                if(uiState.showUserView){
+                    UserViewModal(
+                        uiState = uiState,
+                        context = context,
+                        onDismiss = {
+                            onEvent(SettingUiEvent.ShowUserView(false))
+                        },
                         onEvent = onEvent
                     )
                 }

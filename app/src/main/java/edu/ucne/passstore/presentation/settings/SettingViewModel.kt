@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.passstore.presentation.preferences.SettingPreferences
 import edu.ucne.passstore.presentation.preferences.ThemePreferences
+import edu.ucne.passstore.presentation.preferences.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,13 +17,30 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val themePreferences: ThemePreferences,
-    private val settingPreferences: SettingPreferences
+    private val settingPreferences: SettingPreferences,
+    private val userPreferences: UserPreferences
 ): ViewModel(){
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode
 
     private val _uiState = MutableStateFlow(SettingUiState())
     val uiState = _uiState.asStateFlow()
+
+    init{
+        getUserInfo()
+    }
+
+    private fun getUserInfo(){
+        viewModelScope.launch {
+            val userInfo = userPreferences.getUserInfo()
+            _uiState.update {
+                it.copy(
+                    userName = userInfo.userName,
+                    userDateRegister = userInfo.userDateRegister
+                )
+            }
+        }
+    }
 
     private fun themeApp(){
         viewModelScope.launch {
@@ -108,11 +126,22 @@ class SettingViewModel @Inject constructor(
                     }
                 }
             }
-            is SettingUiEvent.Save -> {
+            is SettingUiEvent.SetPinCode -> {
                 viewModelScope.launch{
                     settingPreferences.setPinCode(uiState.value.pinCode)
                     onEvent(SettingUiEvent.DismissAllModals)
                     onEvent(SettingUiEvent.ShowSuccessModal(true))
+                }
+            }
+            is SettingUiEvent.UserNameChanged -> {
+                _uiState.update {
+                    it.copy(userName = event.userName)
+                }
+            }
+            is SettingUiEvent.SetUserInfo -> {
+                viewModelScope.launch {
+                    userPreferences.setUserInfo(event.userName)
+                    onEvent(SettingUiEvent.DismissAllModals)
                 }
             }
             is SettingUiEvent.ShowSecurityCode -> {
@@ -128,6 +157,11 @@ class SettingViewModel @Inject constructor(
             is SettingUiEvent.ShowConfirmModal -> {
                 _uiState.update {
                     it.copy(showConfirmModal = event.showModal)
+                }
+            }
+            is SettingUiEvent.ShowUserView -> {
+                _uiState.update {
+                    it.copy(showUserView = event.showModal)
                 }
             }
             SettingUiEvent.ResetErrorMessages -> {
@@ -146,7 +180,8 @@ class SettingViewModel @Inject constructor(
                     it.copy(
                         showSecurityCode = false,
                         showNewSecurityCode = false,
-                        showConfirmModal = false
+                        showConfirmModal = false,
+                        showUserView = false
                     )
                 }
             }
