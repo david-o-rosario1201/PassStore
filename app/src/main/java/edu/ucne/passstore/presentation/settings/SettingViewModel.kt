@@ -28,6 +28,7 @@ class SettingViewModel @Inject constructor(
 
     init{
         getUserInfo()
+        getPreferences()
     }
 
     private fun getUserInfo(){
@@ -38,6 +39,15 @@ class SettingViewModel @Inject constructor(
                     userName = userInfo.userName,
                     userDateRegister = userInfo.userDateRegister
                 )
+            }
+        }
+    }
+
+     fun getPreferences(){
+        viewModelScope.launch {
+            val biometricAuth = settingPreferences.getBiometricAuth()
+            _uiState.update {
+                it.copy(biometricAuth = biometricAuth)
             }
         }
     }
@@ -133,6 +143,26 @@ class SettingViewModel @Inject constructor(
                     onEvent(SettingUiEvent.ShowSuccessModal(true))
                 }
             }
+            is SettingUiEvent.RequestBiometricAuth -> {
+                _uiState.update { it.copy(requestBiometricAuth = true) }
+            }
+            is SettingUiEvent.BiometricAuthResult -> {
+                viewModelScope.launch {
+                    if(event.success){
+                        settingPreferences.setBiometricAuth(true)
+                        _uiState.update { it.copy(biometricAuth = true) }
+                    } else{
+                        settingPreferences.setBiometricAuth(false)
+                        _uiState.update { it.copy(biometricAuth = false) }
+                    }
+                }
+            }
+            is SettingUiEvent.SetBiometricAuth -> {
+                viewModelScope.launch {
+                    settingPreferences.setBiometricAuth(event.enabled)
+                    _uiState.update { it.copy(biometricAuth = event.enabled) }
+                }
+            }
             is SettingUiEvent.UserNameChanged -> {
                 _uiState.update {
                     it.copy(userName = event.userName)
@@ -146,7 +176,10 @@ class SettingViewModel @Inject constructor(
             }
             is SettingUiEvent.ShowSecurityCode -> {
                 _uiState.update {
-                    it.copy(showSecurityCode = event.showSecurityCode)
+                    it.copy(
+                        showSecurityCode = event.showSecurityCode,
+                        showBiometricModal = false
+                    )
                 }
             }
             is SettingUiEvent.ShowSuccessModal -> {
@@ -162,6 +195,22 @@ class SettingViewModel @Inject constructor(
             is SettingUiEvent.ShowUserView -> {
                 _uiState.update {
                     it.copy(showUserView = event.showModal)
+                }
+            }
+            is SettingUiEvent.ShowBiometricModal -> {
+                _uiState.update {
+                    it.copy(showBiometricModal = event.showModal)
+                }
+            }
+            is SettingUiEvent.BiometricAuthSuccess -> {
+                onEvent(SettingUiEvent.ShowBiometricModal(false))
+                _uiState.update {
+                    it.copy(codeSucceeded = event.showModal)
+                }
+            }
+            is SettingUiEvent.ShowBiometricAuthDisabledModal -> {
+                _uiState.update {
+                    it.copy(showBiometricAuthDisabledModal = event.showModal)
                 }
             }
             SettingUiEvent.ResetErrorMessages -> {
@@ -180,8 +229,7 @@ class SettingViewModel @Inject constructor(
                     it.copy(
                         showSecurityCode = false,
                         showNewSecurityCode = false,
-                        showConfirmModal = false,
-                        showUserView = false
+                        showConfirmModal = false
                     )
                 }
             }
