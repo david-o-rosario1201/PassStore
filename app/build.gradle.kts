@@ -92,4 +92,10 @@ dependencies {
 
     //DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.7")
+
+    //biometric
+    implementation("androidx.biometric:biometric:1.1.0")
+
+    //AppCompat
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }
