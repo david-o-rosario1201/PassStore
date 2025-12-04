@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import edu.ucne.passstore.biometricauth.BiometricPromptManager
 import edu.ucne.passstore.presentation.home.HomeScreen
 import edu.ucne.passstore.presentation.settings.SettingScreen
 import edu.ucne.passstore.presentation.subcuenta.SubcuentaScreen
@@ -16,6 +17,7 @@ import edu.ucne.passstore.presentation.subcuenta.ViewSubcuentaScreen
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun PassStoreNavHost(
+    promptManager: BiometricPromptManager,
     navHostController: NavHostController
 ){
     val context = LocalContext.current
@@ -25,6 +27,7 @@ fun PassStoreNavHost(
     ) {
         composable<Screen.HomeScreen> {
             HomeScreen(
+                promptManager = promptManager,
                 context = context,
                 goViewSubcuentaScreen = { cuentaId ->
                     navHostController.navigate(Screen.ViewSubcuentaScreen(cuentaId))
@@ -35,7 +38,12 @@ fun PassStoreNavHost(
         composable<Screen.SubcuentaScreen> {
             SubcuentaScreen(
                 context = context,
-                goHome = { navHostController.navigate(Screen.HomeScreen)}
+                goHome = {
+                    navHostController.navigate(Screen.HomeScreen) {
+                        popUpTo(Screen.HomeScreen) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable<Screen.SettingScreen> {
@@ -51,7 +59,10 @@ fun PassStoreNavHost(
                 cuentaId = cuentaId,
                 context = context,
                 goBack = {
-                    navHostController.navigate(Screen.HomeScreen)
+                    navHostController.navigate(Screen.HomeScreen) {
+                        popUpTo(Screen.HomeScreen) { inclusive = false }
+                        launchSingleTop = true
+                    }
                 }
             )
         }

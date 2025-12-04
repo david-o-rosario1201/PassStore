@@ -5,6 +5,7 @@
 package edu.ucne.passstore.presentation.home
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,10 +57,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import edu.ucne.passstore.R
+import edu.ucne.passstore.biometricauth.BiometricComponent
+import edu.ucne.passstore.presentation.components.BiometricModalComponent
+import edu.ucne.passstore.biometricauth.BiometricPromptManager
 import edu.ucne.passstore.data.local.entities.CuentaEntity
 import edu.ucne.passstore.presentation.components.AppTheme
+import edu.ucne.passstore.presentation.components.BiometricAuthDisabledComponent
 import edu.ucne.passstore.presentation.components.SecurityDialog
 import edu.ucne.passstore.presentation.navigation.BottomNavigationBar
+import edu.ucne.passstore.presentation.navigation.Screen
 import edu.ucne.passstore.presentation.settings.SettingUiEvent
 import edu.ucne.passstore.presentation.settings.SettingUiState
 import edu.ucne.passstore.presentation.settings.SettingViewModel
@@ -68,6 +74,7 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
+    promptManager: BiometricPromptManager,
     context: Context,
     navHostController: NavHostController,
     homeViewModel: HomeViewModel = hiltViewModel(),
@@ -76,9 +83,11 @@ fun HomeScreen(
 ){
     val homeUiState by  homeViewModel.uiState.collectAsState()
     val settingUiState by settingViewModel.uiState.collectAsState()
+    settingViewModel.getPreferences()
 
     AppTheme{
         HomeBodyScreen(
+            promptManager = promptManager,
             context = context,
             homeUiState = homeUiState,
             settingUiState = settingUiState,
@@ -92,6 +101,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeBodyScreen(
+    promptManager: BiometricPromptManager,
     context: Context,
     homeUiState: HomeUiState,
     settingUiState: SettingUiState,
@@ -103,7 +113,6 @@ fun HomeBodyScreen(
     var currentLocal by remember { mutableStateOf(Locale.getDefault().language) }
 
     LaunchedEffect(settingUiState){
-
         if(settingUiState.codeSucceeded){
             goViewSubcuentaScreen(homeUiState.cuentaIdSelected)
         }
@@ -224,13 +233,41 @@ fun HomeBodyScreen(
                         Text("EN")
                     }
                 }
+                BiometricComponent(
+                    promptManager = promptManager,
+                    onEvent = onSettingEvent
+                )
 
+                if(settingUiState.showBiometricModal){
+                    BiometricModalComponent(
+                        context = context,
+                        promptManager = promptManager,
+                        uiState = settingUiState,
+                        onEvent = onSettingEvent,
+                        onDismiss = {
+                            onSettingEvent(SettingUiEvent.ShowBiometricModal(false))
+                        }
+                    )
+                }
                 if(settingUiState.showSecurityCode){
                     SecurityDialog(
                         message = "Estas intentando mostrar tus datos personales, para continuar ingrese el código de seguridad.",
                         context = context,
                         uiState = settingUiState,
                         onEvent = onSettingEvent
+                    )
+                }
+                if(settingUiState.showBiometricAuthDisabledModal){
+                    BiometricAuthDisabledComponent(
+                        context = context,
+                        onDismiss = {
+                            onSettingEvent(
+                                SettingUiEvent.ShowBiometricAuthDisabledModal(false)
+                            )
+                        },
+                        onGoSettings = {
+                            navHostController.navigate(Screen.SettingScreen)
+                        }
                     )
                 }
             }
@@ -252,7 +289,7 @@ fun CuentaRow(
     val resIdItem = context.resources.getIdentifier(cuenta?.iconoResName, "drawable", context.packageName)
     Card(
         onClick = {
-            onSettingEvent(SettingUiEvent.ShowSecurityCode(true))
+            onSettingEvent(SettingUiEvent.ShowBiometricModal(true))
             onHomeEvent(HomeUiEvent.CuentaIdSelected(it.cuentaId ?: 0))
         },
         colors = CardDefaults.cardColors(
@@ -304,6 +341,7 @@ fun CuentaRow(
 @Composable
 fun HomeBodyScreenPreview(){
     HomeBodyScreen(
+        promptManager = BiometricPromptManager(AppCompatActivity()),
         context = LocalContext.current,
         homeUiState = HomeUiState(),
         settingUiState = SettingUiState(),

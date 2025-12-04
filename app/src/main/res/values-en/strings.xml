@@ -45,4 +45,11 @@
     <string name="save">Save</string>
     <string name="confirm_modal_delete_question">Are you sure you want to delete this account?</string>
     <string name="action_success">Action performed successfully</string>
+    <string name="biometric_auth_disabled">Biometric Authentication Disabled</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="path_way">How do you want to continue?</string>
+    <string name="pin_way">Pin</string>
+    <string name="biometric_way">Biometric</string>
+    <string name="finger_print_auth">Finger print authentication</string>
+    <string name="fingerprint_auth_description">Access using fingerprint reader</string>
 </resources>

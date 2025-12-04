@@ -49,16 +49,26 @@ fun BottomNavigationBar(
             .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
     ){
         items.forEachIndexed { index, item ->
-            val isSelected = currentDestination == item.screen::class.qualifiedName
+            val isSelected = currentDestination?.contains(item.screen::class.simpleName ?: "") == true
 
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-                    navHostController.navigate(item.screen){
-                        launchSingleTop = true
-                        restoreState = true
-                        popUpTo(navHostController.graph.startDestinationId){
-                            saveState = true
+                    if (item.screen is Screen.HomeScreen) {
+                        // Ir a Home limpiando el backstack
+                        navHostController.navigate(Screen.HomeScreen) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(Screen.HomeScreen) { inclusive = false }
+                        }
+                    } else {
+                        // Navegar normalmente
+                        navHostController.navigate(item.screen) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navHostController.graph.startDestinationId) {
+                                saveState = true
+                            }
                         }
                     }
                 },
