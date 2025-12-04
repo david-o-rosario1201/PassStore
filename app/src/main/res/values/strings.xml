@@ -45,4 +45,11 @@
     <string name="save">Guardar</string>
     <string name="confirm_modal_delete_question">¿Éstas seguro que quieres eliminar esta cuenta?</string>
     <string name="action_success">Acción realizada con éxito</string>
+    <string name="biometric_auth_disabled">Autenticación biométrica deshabilitada</string>
+    <string name="go_to_settings">Ir a ajustes</string>
+    <string name="path_way">¿De qué forma deseas continuar?</string>
+    <string name="pin_way">Pin</string>
+    <string name="biometric_way">Biométrico</string>
+    <string name="finger_print_auth">Autenticación por huella digital</string>
+    <string name="fingerprint_auth_description">Accede utilizando el lector de huellas digitales</string>
 </resources>
