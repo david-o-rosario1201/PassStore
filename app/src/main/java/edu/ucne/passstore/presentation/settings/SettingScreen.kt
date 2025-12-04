@@ -84,7 +84,6 @@ fun SettingBodyScreen(
     uiState: SettingUiState,
     onEvent: (SettingUiEvent) -> Unit
 ){
-    var switchState by remember { mutableStateOf(false) }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.background
@@ -212,8 +211,10 @@ fun SettingBodyScreen(
                     )
                     SettingSwitchRow(
                         title = context.getString(R.string.biometric_auth),
-                        checked = switchState,
-                        onCheckedChange = { switchState = it }
+                        checked = uiState.biometricAuth,
+                        onCheckedChange = { isChecked ->
+                            onEvent(SettingUiEvent.SetBiometricAuth(isChecked))
+                        }
                     )
                     SettingRow(
                         title = context.getString(R.string.lock_screen_timer),
@@ -412,21 +413,10 @@ fun SettingSwitchRow(
         )
         Row(verticalAlignment = Alignment.CenterVertically){
             leftLabel?.let { Text(it, fontSize = 12.sp, color = Color.Gray) }
-
-            if(title == "Tema claro/oscuro"){
-//                ThemeSwitcher(
-//                    isDarkMode = checked,
-//                    iconSize = 15.dp,
-//                    padding = 7.dp,
-//                    borderWidth = 1.dp,
-//                    onClick = { onCheckedChange(!checked)}
-//                )
-            } else{
-                CustomSwitchWithLabel(
-                    checked = checked,
-                    onCheckedChange = onCheckedChange
-                )
-            }
+            CustomSwitchWithLabel(
+                checked = checked,
+                onCheckedChange = { onCheckedChange(it) }
+            )
             rightLabel?.let { Text(it, fontSize = 12.sp, color = Color.Gray) }
         }
     }
@@ -438,7 +428,6 @@ fun CustomSwitchWithLabel(
     onCheckedChange: (Boolean) -> Unit,
     label: String = ""
 ){
-
     Row(
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -451,7 +440,7 @@ fun CustomSwitchWithLabel(
         }
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = { onCheckedChange(it) },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.Black,
                 checkedTrackColor = Color(0xFFDDDDDD),
