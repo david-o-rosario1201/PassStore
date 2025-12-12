@@ -136,7 +136,7 @@ private fun getBottomNavigationItems(
             selectedIcon = Icons.Filled.Settings,
             unselectedIcon = Icons.Outlined.Settings,
             label = context.getString(R.string.bottombar_settings),
-            screen = Screen.SettingScreen
+            screen = Screen.SettingScreen(shouldHighlightBiometric = false)
         )
     )
 }

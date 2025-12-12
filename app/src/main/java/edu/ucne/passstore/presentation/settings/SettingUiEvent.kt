@@ -13,6 +13,7 @@ sealed interface SettingUiEvent {
     data class ShowUserView(val showModal: Boolean): SettingUiEvent
     data class ShowBiometricModal(val showModal: Boolean): SettingUiEvent
     data class ShowBiometricAuthDisabledModal(val showModal: Boolean): SettingUiEvent
+    data class ShowHighlightBiometric(val showHighlight: Boolean): SettingUiEvent
     data class BiometricAuthSuccess(val showModal: Boolean): SettingUiEvent
     data class SetUserInfo(val userName: String): SettingUiEvent
     data class UserNameChanged(val userName: String): SettingUiEvent

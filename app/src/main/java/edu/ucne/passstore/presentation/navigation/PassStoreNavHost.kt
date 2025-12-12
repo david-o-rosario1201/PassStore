@@ -46,8 +46,10 @@ fun PassStoreNavHost(
                 }
             )
         }
-        composable<Screen.SettingScreen> {
+        composable<Screen.SettingScreen> { it ->
+            val shouldHighLightBiometric = it.toRoute<Screen.SettingScreen>().shouldHighlightBiometric
             SettingScreen(
+                shouldHighlightBiometric = shouldHighLightBiometric,
                 context = context,
                 navHostController = navHostController
             )
@@ -59,10 +61,7 @@ fun PassStoreNavHost(
                 cuentaId = cuentaId,
                 context = context,
                 goBack = {
-                    navHostController.navigate(Screen.HomeScreen) {
-                        popUpTo(Screen.HomeScreen) { inclusive = false }
-                        launchSingleTop = true
-                    }
+                    navHostController.navigate(Screen.HomeScreen)
                 }
             )
         }

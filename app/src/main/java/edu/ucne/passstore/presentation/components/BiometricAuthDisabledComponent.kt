@@ -49,7 +49,7 @@ fun BiometricAuthDisabledComponent(
             ){
                 //Titulo
                 Text(
-                    text = context.getString(R.string.biometric_auth),
+                    text = "Biometric Auth Disabled",
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,

@@ -1,5 +1,8 @@
 package edu.ucne.passstore.presentation.settings
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +32,13 @@ class SettingViewModel @Inject constructor(
     init{
         getUserInfo()
         getPreferences()
+    }
+
+    var shouldHighlightBiometric by mutableStateOf(false)
+        private set
+
+    fun updateHighlightBiometric(value: Boolean) {
+        shouldHighlightBiometric = value
     }
 
     private fun getUserInfo(){
@@ -231,6 +241,11 @@ class SettingViewModel @Inject constructor(
                         showNewSecurityCode = false,
                         showConfirmModal = false
                     )
+                }
+            }
+            is SettingUiEvent.ShowHighlightBiometric -> {
+                _uiState.update {
+                    it.copy(shouldHighlightBiometric = event.showHighlight)
                 }
             }
         }

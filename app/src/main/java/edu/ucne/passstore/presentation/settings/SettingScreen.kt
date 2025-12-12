@@ -1,8 +1,15 @@
 package edu.ucne.passstore.presentation.settings
 
 import android.content.Context
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,17 +39,16 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -63,27 +69,66 @@ import edu.ucne.passstore.presentation.navigation.BottomNavigationBar
 fun SettingScreen(
     context: Context,
     navHostController: NavHostController,
+    shouldHighlightBiometric: Boolean,
     viewModel: SettingViewModel = hiltViewModel()
 ){
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(shouldHighlightBiometric) {
+        if (shouldHighlightBiometric) {
+            viewModel.updateHighlightBiometric(true)
+        }
+    }
+
+    val vmHighlight = viewModel.shouldHighlightBiometric
+
     AppTheme {
         SettingBodyScreen(
+            shouldHighlightBiometric = vmHighlight,   // ⬅️ siempre el del ViewModel
             context = context,
             navHostController = navHostController,
             uiState = uiState,
-            onEvent = viewModel::onEvent
+            onEvent = viewModel::onEvent,
+            viewModel = viewModel
         )
     }
 }
 
 @Composable
 fun SettingBodyScreen(
+    shouldHighlightBiometric: Boolean,
     context: Context,
     navHostController: NavHostController,
     uiState: SettingUiState,
-    onEvent: (SettingUiEvent) -> Unit
+    onEvent: (SettingUiEvent) -> Unit,
+    viewModel: SettingViewModel
 ){
+    val infinite = rememberInfiniteTransition()
+    val pulse by infinite.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(700, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    val highlightModifier = if (shouldHighlightBiometric) {
+        Modifier
+            .graphicsLayer {
+                scaleX = pulse
+                scaleY = pulse
+            }
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.primary, // Color del tema
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(6.dp)
+    } else Modifier
+
+
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.background
@@ -214,7 +259,9 @@ fun SettingBodyScreen(
                         checked = uiState.biometricAuth,
                         onCheckedChange = { isChecked ->
                             onEvent(SettingUiEvent.SetBiometricAuth(isChecked))
-                        }
+                            viewModel.updateHighlightBiometric(false)
+                        },
+                        modifier = highlightModifier
                     )
                     SettingRow(
                         title = context.getString(R.string.lock_screen_timer),
@@ -395,10 +442,11 @@ fun SettingSwitchRow(
     leftLabel: String? = null,
     rightLabel: String? = null,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ){
     Row(
-        modifier = Modifier
+        modifier = modifier   // ⬅️ Aquí se aplica el highlight si lo mandas
             .fillMaxWidth()
             .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

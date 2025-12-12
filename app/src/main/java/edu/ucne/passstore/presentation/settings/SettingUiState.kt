@@ -18,6 +18,7 @@ data class SettingUiState(
     val showSuccessModal: Boolean = false,
     val showBiometricModal: Boolean = false,
     val showBiometricAuthDisabledModal: Boolean = false,
+    val shouldHighlightBiometric: Boolean = false,
     val errorState: Boolean = false,
     val codeSucceeded: Boolean = false
 )
