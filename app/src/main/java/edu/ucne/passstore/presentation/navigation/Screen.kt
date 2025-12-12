@@ -10,7 +10,7 @@ sealed class Screen {
     data object SubcuentaScreen: Screen()
 
     @Serializable
-    data object SettingScreen: Screen()
+    data class SettingScreen(val shouldHighlightBiometric: Boolean): Screen()
 
     @Serializable
     data class ViewSubcuentaScreen(val cuentaId: Int): Screen()
