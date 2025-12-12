@@ -5,7 +5,6 @@
 package edu.ucne.passstore.presentation.home
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -51,7 +50,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -266,7 +264,7 @@ fun HomeBodyScreen(
                             )
                         },
                         onGoSettings = {
-                            navHostController.navigate(Screen.SettingScreen)
+                            navHostController.navigate(Screen.SettingScreen(shouldHighlightBiometric = true))
                         }
                     )
                 }
@@ -337,17 +335,18 @@ fun CuentaRow(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun HomeBodyScreenPreview(){
-    HomeBodyScreen(
-        promptManager = BiometricPromptManager(AppCompatActivity()),
-        context = LocalContext.current,
-        homeUiState = HomeUiState(),
-        settingUiState = SettingUiState(),
-        goViewSubcuentaScreen = {},
-        navHostController = NavHostController(LocalContext.current),
-        onSettingEvent = {},
-        onHomeEvent = {}
-    )
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun HomeBodyScreenPreview(){
+//    HomeBodyScreen(
+//        promptManager = BiometricPromptManager(AppCompatActivity()),
+//        context = LocalContext.current,
+//        homeUiState = HomeUiState(),
+//        settingUiState = SettingUiState(),
+//        goViewSubcuentaScreen = {},
+//        navHostController = NavHostController(LocalContext.current),
+//        onSettingEvent = {},
+//        onHomeEvent = {},
+//        viewModel =
+//    )
+//}
